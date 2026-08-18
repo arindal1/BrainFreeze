@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/seo";
 import "./globals.css";
-
-const SITE_URL = "https://brainfreeze.app";
-const SITE_TITLE = "Brain Freeze | Intelligent Asynchronous Research";
-const SITE_DESCRIPTION =
-  "Submit any research query: a topic, product, company, sector, or trend - and receive a comprehensive, structured markdown document once a multi-agent AI research pipeline finishes in the background. No waiting, no blocking.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -32,26 +28,78 @@ export const metadata: Metadata = {
   creator: "Arindal Char",
   publisher: "Arindal Char",
   applicationName: "Brain Freeze",
-  icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
+  alternates: {
+    canonical: "/",
   },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+  manifest: "/manifest.webmanifest",
   openGraph: {
     type: "website",
     url: SITE_URL,
-    siteName: "Brain Freeze",
+    siteName: SITE_NAME,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Brain Freeze - Intelligent Asynchronous Research" }],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/og-image.svg"],
     creator: "@arindal_17",
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  category: "technology",
+  // Add Google Search Console / Bing Webmaster verification tokens here once issued,
+  // e.g. verification: { google: "...", other: { "msvalidate.01": "..." } }.
+};
+
+export const viewport: Viewport = {
+  themeColor: "#06070a",
+  colorScheme: "dark",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: `${SITE_URL}/favicon.svg`,
+      founder: { "@type": "Person", name: "Arindal Char", url: "https://github.com/arindal1" },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en",
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: SITE_NAME,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: SITE_URL,
+      description: SITE_DESCRIPTION,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -66,6 +114,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300..500&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap"
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="flex min-h-full flex-col bg-void text-frost">

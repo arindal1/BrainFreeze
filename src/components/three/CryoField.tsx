@@ -100,9 +100,9 @@ const fragmentShader = /* glsl */ `
 
     vec3 color = VOID_C;
     color = mix(color, DEEP_C, body);
-    color += CRYO_C * body * body * 0.26;
-    color += CRYO_C * seam * (0.30 + 0.50 * body);
-    color += CRYO_C * core * 0.06;
+    color += CRYO_C * body * body * 0.16;
+    color += CRYO_C * seam * (0.18 + 0.32 * body);
+    color += CRYO_C * core * 0.035;
 
     // Melt: seams glow hot and the medium reddens near the pointer
     color = mix(color, FLARE_C, clamp(heat * (0.20 + seam * 0.9), 0.0, 0.55));
@@ -110,7 +110,7 @@ const fragmentShader = /* glsl */ `
 
     // Depth: cold vignette adds falloff without flattening the field
     float vig = smoothstep(1.25, 0.2, length(uv - 0.5));
-    color *= mix(0.55, 1.0, vig);
+    color *= mix(0.4, 0.78, vig);
 
     // Dither - kills banding in the large dark field
     float dither = fract(sin(dot(uv * uResolution, vec2(12.9898, 78.233))) * 43758.5453);

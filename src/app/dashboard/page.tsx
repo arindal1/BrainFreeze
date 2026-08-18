@@ -37,7 +37,7 @@ export default function ActivePage() {
           <div className="hatch border border-[color:var(--line-strong)] px-6 py-14 text-center">
             <p className="display text-[length:var(--step-2)] text-frost-dim">Nothing running.</p>
             <p className="label mt-3 text-frost-dim">
-              Dispatch a question above — you don&apos;t have to stay.
+              Dispatch a question above - you don&apos;t have to stay.
             </p>
           </div>
         ) : (

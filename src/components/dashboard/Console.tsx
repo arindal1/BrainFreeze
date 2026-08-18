@@ -50,7 +50,7 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
           minLength={2}
           maxLength={MAX}
           autoComplete="off"
-          placeholder="Solid-state battery supply chain, 2026"
+          placeholder="write something you want researched..."
           className="display w-full flex-1 border-b border-[color:var(--line-strong)] bg-transparent pb-3 text-[length:var(--step-2)] text-frost placeholder:text-frost-dim/60 outline-none transition-colors duration-300 focus:border-[color:var(--flare)]"
         />
         <Button type="submit" disabled={loading || tooShort} className="shrink-0">

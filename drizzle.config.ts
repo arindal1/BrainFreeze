@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://localhost:5432/brainfreeze",
+    url: process.env.DATABASE_URL ?? "postgresql://neondb_owner:npg_taxqwu1lO3ih@ep-aged-tree-b2nkqfsf-pooler.c-6.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
   },
 });

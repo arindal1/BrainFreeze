@@ -2,6 +2,18 @@
 
 All notable changes to Brain Freeze are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
+## [0.5.2]
+
+### Changed
+
+- `CryoField` (WebGL background) dimmed back down: reduced the cold body/seam glow contributions and darkened the vignette multiplier so the field reads as a subtle backdrop again instead of the brighter, more prominent look introduced in 0.4.0.
+- `src/app/layout.tsx` metadata centralized: `SITE_URL`/`SITE_NAME`/`SITE_TITLE`/`SITE_DESCRIPTION` moved to a shared `src/lib/seo.ts` so metadata, `robots.ts`, `sitemap.ts`, and `manifest.ts` can't drift from one another. Also fixed a bug where `icons.icon`/`icons.shortcut` pointed at a non-existent `/icon.svg` (the real file is `public/favicon.svg`).
+
+### Added
+
+- **DB keep-alive ping**: `src/db/index.ts` now starts a 5-minute `setInterval` (`select 1`) singleton on module load to stop Neon (and similar managed Postgres providers) from suspending the compute after 5 minutes of idle, avoiding cold-start latency on the next request. The interval is `unref()`'d so it never keeps a script/test process alive by itself, and is cached on `globalThis` like the existing DB client singleton to survive dev HMR.
+- **SEO pass**: added `src/app/robots.ts` (allows all crawlers on marketing/auth pages, disallows `/dashboard` and `/api/`, points at the sitemap), `src/app/sitemap.ts` (`/`, `/login`, `/register`), and `src/app/manifest.ts` (web app manifest for installability/PWA metadata). Added `alternates.canonical`, a `viewport` export (`themeColor`/`colorScheme`), explicit `robots.googleBot` directives (`max-image-preview: large`, `max-snippet`/`max-video-preview: -1`), and a JSON-LD `<script>` (`Organization` + `WebSite` + `SoftwareApplication`) in `RootLayout` for rich-result eligibility. `src/app/dashboard/layout.tsx` now sets `robots: { index: false, follow: false, nocache: true }` since it's an auth-gated, non-public area. Replaced the static `og-image.svg`/hardcoded OG/Twitter `images` metadata with generated `src/app/opengraph-image.tsx` / `src/app/twitter-image.tsx` (via a shared `src/lib/ogImage.tsx` renderer using `next/og`'s `ImageResponse`), so social previews are correctly-sized PNGs auto-linked by Next's file-convention metadata instead of manually-listed SVGs.
+
 ## [0.5.1] - 2026-08-18
 
 ### Fixed
