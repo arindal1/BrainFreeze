@@ -1,12 +1,20 @@
 import "server-only";
 import { LLMProvider, ProviderError, ProviderResponse } from "./types";
-import { getActiveKey, reportKeyFailure, reportKeySuccess, hasAnyKey } from "./keyManager";
+import {
+  getActiveKey,
+  reportKeyFailure,
+  reportKeySuccess,
+  hasAnyKey,
+} from "./keyManager";
 
 /**
  * Deterministic offline fallback so the pipeline always produces a usable
  * research document even when no provider API keys are configured.
  */
-export function mockGenerate(providerName: string, prompt: string): ProviderResponse {
+export function mockGenerate(
+  providerName: string,
+  prompt: string,
+): ProviderResponse {
   const topic = prompt.split("\n").pop()?.trim() || prompt;
   return {
     provider: providerName,
@@ -64,7 +72,12 @@ export class GeminiProvider implements LLMProvider {
             }),
           },
         );
-        if (!res.ok) throw new ProviderError(`Gemini HTTP ${res.status}`, "gemini", res.status === 429 || res.status >= 500);
+        if (!res.ok)
+          throw new ProviderError(
+            `Gemini HTTP ${res.status}`,
+            "gemini",
+            res.status === 429 || res.status >= 500,
+          );
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
         return { provider: "gemini", model: "gemini-2.5-flash", text };
@@ -90,19 +103,27 @@ export class NemotronProvider implements LLMProvider {
     return withKeyRotation(
       "OPENROUTER",
       async (key) => {
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${key}`,
+        const res = await fetch(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${key}`,
+            },
+            body: JSON.stringify({
+              model: NEMOTRON_MODEL,
+              messages: [{ role: "user", content: prompt }],
+              reasoning: { enabled: true },
+            }),
           },
-          body: JSON.stringify({
-            model: NEMOTRON_MODEL,
-            messages: [{ role: "user", content: prompt }],
-            reasoning: { enabled: true },
-          }),
-        });
-        if (!res.ok) throw new ProviderError(`Nemotron HTTP ${res.status}`, "nemotron", res.status === 429 || res.status >= 500);
+        );
+        if (!res.ok)
+          throw new ProviderError(
+            `Nemotron HTTP ${res.status}`,
+            "nemotron",
+            res.status === 429 || res.status >= 500,
+          );
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content ?? "";
         return { provider: "nemotron", model: NEMOTRON_MODEL, text };
@@ -119,20 +140,24 @@ export class GrokProvider implements LLMProvider {
     return withKeyRotation(
       "GROK",
       async (key) => {
-        const res = await fetch("https://api.x.ai/v1/chat/completions", {
+        const res = await fetch("https://api.x.ai/v1/responses", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
-            model: "grok-4",
-            messages: [{ role: "user", content: prompt }],
-            // Enables xAI's live web/news search grounding for current-events queries.
-            search_parameters: { mode: "auto" },
+            model: "grok-4.6",
+            input: [{ role: "user", content: prompt }],
+            tools: [{ type: "web_search" }],
           }),
         });
-        if (!res.ok) throw new ProviderError(`Grok HTTP ${res.status}`, "grok", res.status === 429 || res.status >= 500);
+        if (!res.ok)
+          throw new ProviderError(
+            `Grok HTTP ${res.status}`,
+            "grok",
+            res.status === 429 || res.status >= 500,
+          );
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content ?? "";
         return { provider: "grok", model: "grok-4", text };
