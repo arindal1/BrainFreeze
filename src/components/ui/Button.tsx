@@ -18,7 +18,7 @@ const variants: Record<Variant, string> = {
 
 /**
  * Instrument button. The `signal` variant tracks the pointer and fills from
- * the exact point of contact — the build's primary microinteraction.
+ * the exact point of contact - the build's primary microinteraction.
  */
 export const Button = forwardRef<
   HTMLButtonElement,

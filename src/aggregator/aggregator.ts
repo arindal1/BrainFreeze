@@ -5,7 +5,7 @@ interface AgentSection {
 
 /**
  * Merges independent agent responses into one structured markdown document.
- * Kept intentionally simple/deterministic (no extra LLM call) — headings are
+ * Kept intentionally simple/deterministic (no extra LLM call) - headings are
  * organized, duplicate section titles are stripped from agent output, and a
  * consistent document shape is produced every time.
  */

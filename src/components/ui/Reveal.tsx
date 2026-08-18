@@ -7,7 +7,7 @@ type Kind = "rise" | "wipe" | "slam";
 
 /**
  * Entrance primitives. Deliberately three different techniques with three
- * different timings — a page where everything fades-up identically is the
+ * different timings - a page where everything fades-up identically is the
  * clearest tell of generated work.
  */
 const kinds: Record<Kind, Variants> = {
@@ -20,7 +20,7 @@ const kinds: Record<Kind, Variants> = {
       transition: { duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] },
     }),
   },
-  // Clip-path wipe for structural blocks — machined, not soft.
+  // Clip-path wipe for structural blocks - machined, not soft.
   wipe: {
     hidden: { clipPath: "inset(0 100% 0 0)" },
     shown: (delay: number) => ({

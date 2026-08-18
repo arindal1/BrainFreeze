@@ -3,9 +3,9 @@ import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider"
 import "./globals.css";
 
 const SITE_URL = "https://brainfreeze.app";
-const SITE_TITLE = "Brain Freeze — Intelligent Asynchronous Research";
+const SITE_TITLE = "Brain Freeze | Intelligent Asynchronous Research";
 const SITE_DESCRIPTION =
-  "Submit any research query — a topic, product, company, sector, or trend — and receive a comprehensive, structured markdown document once a multi-agent AI research pipeline finishes in the background. No waiting, no blocking.";
+  "Submit any research query: a topic, product, company, sector, or trend - and receive a comprehensive, structured markdown document once a multi-agent AI research pipeline finishes in the background. No waiting, no blocking.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "Brain Freeze",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Brain Freeze — Intelligent Asynchronous Research" }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Brain Freeze - Intelligent Asynchronous Research" }],
   },
   twitter: {
     card: "summary_large_image",

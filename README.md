@@ -2,6 +2,8 @@
 
 Intelligent asynchronous research platform. Submit any research query — a topic, product, company, sector, person, or event — walk away, and get a structured markdown document once a multi-agent pipeline (Gemini + Nemotron + Grok) finishes researching it in the background.
 
+![image0](/public/image-home.png)
+
 ## Getting started
 
 1. Copy `.env.example` to `.env.local` and fill in `DATABASE_URL` (Neon Postgres), `AUTH_SECRET`, OAuth credentials, and provider API keys.

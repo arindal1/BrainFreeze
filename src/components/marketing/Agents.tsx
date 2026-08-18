@@ -21,7 +21,7 @@ const AGENTS = [
     model: "Gemini",
     route: "Google",
     mandate:
-      "Goes technical. Mechanisms, architecture, trade-offs, comparisons and the failure modes — grounded against live web search rather than recalled from training.",
+      "Goes technical. Mechanisms, architecture, trade-offs, comparisons and the failure modes - grounded against live web search rather than recalled from training.",
     grounding: "Web search",
     section: "Technical analysis",
   },
@@ -57,7 +57,7 @@ export function Agents() {
             <p className="text-frost-muted">
               Each agent runs a different model against a different prompt with a different
               grounding strategy, and owns one section of the final document. If one fails, the
-              other two still ship — the report notes the gap instead of pretending.
+              other two still ship - the report notes the gap instead of pretending.
             </p>
           </Reveal>
         </div>

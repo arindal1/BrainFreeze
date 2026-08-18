@@ -37,7 +37,7 @@ export default function Error({
         </h1>
 
         <p className="lede mt-7">
-          Something broke rendering this page — not in the research pipeline itself. Queued and
+          Something broke rendering this page: not in the research pipeline itself. Queued and
           running jobs are unaffected. Try again, or head back to the dashboard.
         </p>
 

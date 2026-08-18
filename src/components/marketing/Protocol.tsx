@@ -11,19 +11,19 @@ const STEPS = [
   {
     n: "01",
     title: "Submit",
-    body: "One line. A topic, a company, a sector, a person, a shipping standard — whatever you'd otherwise spend an afternoon on. The query is normalised and checked against your in-flight work so the same question never runs twice.",
+    body: "One line. A topic, a company, a sector, a person, a shipping standard - whatever you'd otherwise spend an afternoon on. The query is normalised and checked against your in-flight work so the same question never runs twice.",
     spec: ["Dedup on normalised text", "500 char ceiling", "Rate limited per IP"],
   },
   {
     n: "02",
     title: "Dispatch",
-    body: "The job enters an in-process queue with fixed concurrency and you are released immediately. Three agents are then fired in parallel — nothing is sequential, nothing waits on a previous answer.",
+    body: "The job enters an in-process queue with fixed concurrency and you are released immediately. Three agents are then fired in parallel - nothing is sequential, nothing waits on a previous answer.",
     spec: ["FIFO queue", "Promise.allSettled fan-out", "Partial failure tolerated"],
   },
   {
     n: "03",
     title: "Synthesise",
-    body: "Each agent returns its own section. The aggregator merges them into a single structured markdown document with a references footer — not three chat logs stapled together.",
+    body: "Each agent returns its own section. The aggregator merges them into a single structured markdown document with a references footer - not three chat logs stapled together.",
     spec: ["Sectioned markdown", "Reference footer", "Written to Postgres"],
   },
   {
@@ -46,7 +46,7 @@ export function Protocol() {
       // Horizontal pinned track only where there's room for it. This must be
       // the SAME breakpoint at which the track becomes `flex-row` (Tailwind
       // `lg`, 1024px). It used to be 900px, so between 900 and 1023 the
-      // section pinned with a scroll distance of zero — the page simply froze
+      // section pinned with a scroll distance of zero - the page simply froze
       // and the "side scroller" appeared to do nothing.
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const el = track.current;
@@ -89,7 +89,7 @@ export function Protocol() {
         <p className="label hidden text-black/55 lg:block">Scroll →</p>
       </div>
 
-      {/* Progress rail — makes the horizontal travel legible instead of
+      {/* Progress rail - makes the horizontal travel legible instead of
           leaving the user to guess how far through the track they are. */}
       <div
         aria-hidden

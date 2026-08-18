@@ -5,7 +5,7 @@ import { InputHTMLAttributes, forwardRef, useId } from "react";
 const inputClass =
   "w-full border-b border-[color:var(--line-strong)] bg-transparent px-0 py-3.5 text-frost placeholder:text-frost-dim outline-none transition-colors duration-300 focus:border-[color:var(--flare)] focus-visible:outline-none";
 
-/** Bare underline input — no boxes, no rounded chrome. */
+/** Bare underline input - no boxes, no rounded chrome. */
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className = "", ...props }, ref) {
     return <input ref={ref} className={`${inputClass} ${className}`} {...props} />;

@@ -15,7 +15,7 @@ const EXAMPLES = [
 export function Brief() {
   return (
     <section id="brief" className="relative overflow-hidden border-b border-[color:var(--line-strong)]">
-      {/* Marquee band — the only purely decorative motion on the page */}
+      {/* Marquee band - the only purely decorative motion on the page */}
       <div className="hatch overflow-hidden border-b border-[color:var(--line-strong)] py-4">
         <div className="slide flex w-max whitespace-nowrap">
           {Array.from({ length: 2 }).map((_, dup) => (
@@ -45,7 +45,7 @@ export function Brief() {
 
         <Reveal kind="rise" delay={0.12} className="flex flex-col gap-8">
           <p className="lede">
-            Free to start. Documents are stored against your account permanently — every report
+            Free to start. Documents are stored against your account permanently - every report
             you generate stays searchable in your history.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">

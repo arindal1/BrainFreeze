@@ -4,7 +4,7 @@ type Task = () => Promise<void>;
 
 /**
  * Minimal in-process FIFO queue with configurable concurrency. Swappable
- * later for Redis/BullMQ/SQS without changing callers — they only see
+ * later for Redis/BullMQ/SQS without changing callers - they only see
  * `enqueue()`.
  */
 class ResearchQueue {

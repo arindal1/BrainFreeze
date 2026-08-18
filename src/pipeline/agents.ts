@@ -9,7 +9,7 @@ interface AgentDefinition {
 
 /**
  * Shared instructions so every agent generalizes across any kind of search
- * subject — a topic, technology, product, company, sector, person, or event —
+ * subject - a topic, technology, product, company, sector, person, or event -
  * instead of assuming the query is always an abstract "topic".
  */
 const SUBJECT_GUIDANCE =

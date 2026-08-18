@@ -8,7 +8,7 @@ type Props = ComponentProps<typeof Link> & { children: React.ReactNode };
 /**
  * The single primary action surface. Hero and Brief both used to hand-roll
  * this (same markup, drifting padding), which is where the spacing
- * inconsistency crept in — there is now exactly one of it.
+ * inconsistency crept in - there is now exactly one of it.
  */
 export function CtaLink({ children, className = "", ...rest }: Props) {
   return (

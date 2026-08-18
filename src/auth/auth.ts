@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
  * provider that's configured with empty/undefined id+secret, which surfaces
  * as `[auth][error] TypeError: fetch failed` in the server log followed by a
  * hard 500 on `/api/auth/error?error=Configuration` the moment anyone hits
- * "Continue with Google" — instead of the "Configuration" error page you'd
+ * "Continue with Google" - instead of the "Configuration" error page you'd
  * expect. Omitting the provider entirely when unset keeps email/password
  * auth fully working in environments (local dev, preview deploys) that
  * haven't set up Google OAuth yet.
@@ -68,5 +68,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-/** Whether Google OAuth is wired up — used to conditionally show the button. */
+/** Whether Google OAuth is wired up - used to conditionally show the button. */
 export const isGoogleAuthEnabled = googleConfigured;

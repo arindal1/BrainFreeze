@@ -1,7 +1,7 @@
 /**
  * Rotates through multiple API keys per provider (GEMINI_KEY_1, GEMINI_KEY_2, ...,
  * OPENROUTER_KEY_1.. for Nemotron, GROK_KEY_1..). On failure the key is marked bad
- * for a cooldown period and the next key is tried. No restart required — state
+ * for a cooldown period and the next key is tried. No restart required - state
  * lives in memory for the life of the worker process.
  */
 

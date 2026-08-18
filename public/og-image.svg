@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="hatch" width="7" height="7" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+      <rect width="7" height="7" fill="#0b0d12"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="rgba(238,241,246,0.09)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- void field -->
+  <rect width="1200" height="630" fill="#06070a"/>
+  <rect x="0.5" y="0.5" width="1199" height="629" fill="none" stroke="rgba(238,241,246,0.2)"/>
+
+  <!-- hatch block, lower-right — engineered texture, not decoration -->
+  <rect x="960" y="450" width="240" height="180" fill="url(#hatch)"/>
+  <line x1="960" y1="450" x2="960" y2="630" stroke="rgba(238,241,246,0.2)"/>
+  <line x1="960" y1="450" x2="1200" y2="450" stroke="rgba(238,241,246,0.2)"/>
+
+  <!-- corner marks -->
+  <path d="M64 64 H104 M64 64 V104" stroke="#a9c4ff" stroke-width="2" fill="none"/>
+  <path d="M1136 566 H1096 M1136 566 V526" stroke="#a9c4ff" stroke-width="2" fill="none"/>
+
+  <!-- eyebrow -->
+  <line x1="64" y1="150" x2="104" y2="150" stroke="#a9c4ff" stroke-width="1"/>
+  <text x="116" y="154" font-family="'Martian Mono', ui-monospace, monospace" font-size="14" letter-spacing="3" fill="#a9c4ff">CRYOGENIC RESEARCH INSTRUMENT</text>
+
+  <!-- wordmark -->
+  <text x="62" y="308" font-family="'Syne','Space Grotesk',Arial,sans-serif" font-weight="800" font-size="104" letter-spacing="-3" fill="#eef1f6">BRAIN</text>
+  <text x="62" y="405" font-family="'Syne','Space Grotesk',Arial,sans-serif" font-weight="800" font-size="104" letter-spacing="-3" fill="#eef1f6">FREEZE</text>
+
+  <!-- lede -->
+  <text x="64" y="470" font-family="'Space Grotesk',Arial,sans-serif" font-size="20" fill="#98a1b0">Precision measurement for cold, quiet, exacting work.</text>
+
+  <!-- live status, top right -->
+  <circle cx="960" cy="90" r="13" fill="none" stroke="#ff4a1c" stroke-width="1.4" opacity="0.5"/>
+  <circle cx="960" cy="90" r="5" fill="#ff4a1c"/>
+  <text x="983" y="95" font-family="'Martian Mono', ui-monospace, monospace" font-size="12" letter-spacing="1.5" fill="#eef1f6">STATUS: NOMINAL</text>
+
+  <!-- baseline rule -->
+  <line x1="64" y1="566" x2="866" y2="566" stroke="rgba(238,241,246,0.2)" stroke-width="1"/>
+  <text x="64" y="592" font-family="'Martian Mono', ui-monospace, monospace" font-size="13" letter-spacing="2" fill="#59616f">T+00:00:00</text>
+  <text x="820" y="592" text-anchor="end" font-family="'Martian Mono', ui-monospace, monospace" font-size="13" letter-spacing="2" fill="#59616f">V.X.T-968</text>
+</svg>

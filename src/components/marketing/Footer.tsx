@@ -46,7 +46,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Wordmark as the closing graphic — type is the image */}
+        {/* Wordmark as the closing graphic - type is the image */}
         <p
           aria-hidden
           className="display mt-10 w-full text-[length:var(--step-6)] leading-[0.8] text-frost-dim/20 select-none"

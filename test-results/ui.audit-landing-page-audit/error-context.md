@@ -55,7 +55,7 @@ Error: expect(received).toEqual(expected) // deep equality
           - generic [ref=e24]: Walk away.
           - generic [ref=e26]: Return to a document.
         - generic [ref=e28]:
-          - paragraph [ref=e29]: Three models take your question at the same time — broad ground truth, technical depth, and what actually changed this week. Brain Freeze queues the run, works it in the background, and hands back a single structured markdown report. No spinner to sit and watch.
+          - paragraph [ref=e29]: Three models take your question at the same time - broad ground truth, technical depth, and what actually changed this week. Brain Freeze queues the run, works it in the background, and hands back a single structured markdown report. No spinner to sit and watch.
           - generic [ref=e30]:
             - link "Queue your first query" [ref=e31] [cursor=pointer]:
               - /url: /register
@@ -85,7 +85,7 @@ Error: expect(received).toEqual(expected) // deep equality
           - generic: "01"
           - paragraph [ref=e52]: Stage 01
           - heading "Submit" [level=3] [ref=e53]
-          - paragraph [ref=e54]: One line. A topic, a company, a sector, a person, a shipping standard — whatever you'd otherwise spend an afternoon on. The query is normalised and checked against your in-flight work so the same question never runs twice.
+          - paragraph [ref=e54]: One line. A topic, a company, a sector, a person, a shipping standard - whatever you'd otherwise spend an afternoon on. The query is normalised and checked against your in-flight work so the same question never runs twice.
           - list [ref=e55]:
             - listitem [ref=e56]:
               - text: Dedup on normalised text
@@ -100,7 +100,7 @@ Error: expect(received).toEqual(expected) // deep equality
           - generic: "02"
           - paragraph [ref=e63]: Stage 02
           - heading "Dispatch" [level=3] [ref=e64]
-          - paragraph [ref=e65]: The job enters an in-process queue with fixed concurrency and you are released immediately. Three agents are then fired in parallel — nothing is sequential, nothing waits on a previous answer.
+          - paragraph [ref=e65]: The job enters an in-process queue with fixed concurrency and you are released immediately. Three agents are then fired in parallel - nothing is sequential, nothing waits on a previous answer.
           - list [ref=e66]:
             - listitem [ref=e67]:
               - text: FIFO queue
@@ -115,7 +115,7 @@ Error: expect(received).toEqual(expected) // deep equality
           - generic: "03"
           - paragraph [ref=e74]: Stage 03
           - heading "Synthesise" [level=3] [ref=e75]
-          - paragraph [ref=e76]: Each agent returns its own section. The aggregator merges them into a single structured markdown document with a references footer — not three chat logs stapled together.
+          - paragraph [ref=e76]: Each agent returns its own section. The aggregator merges them into a single structured markdown document with a references footer - not three chat logs stapled together.
           - list [ref=e77]:
             - listitem [ref=e78]:
               - text: Sectioned markdown
@@ -147,7 +147,7 @@ Error: expect(received).toEqual(expected) // deep equality
         - generic [ref=e99]:
           - paragraph [ref=e100]: Three mandates
           - heading "Not one model asked three times." [level=2] [ref=e101]: Not one modelasked three times.
-        - paragraph [ref=e103]: Each agent runs a different model against a different prompt with a different grounding strategy, and owns one section of the final document. If one fails, the other two still ship — the report notes the gap instead of pretending.
+        - paragraph [ref=e103]: Each agent runs a different model against a different prompt with a different grounding strategy, and owns one section of the final document. If one fails, the other two still ship - the report notes the gap instead of pretending.
       - list [ref=e104]:
         - listitem [ref=e105]:
           - button "01 / A Ground Nemotron · OpenRouter" [ref=e106]:
@@ -162,7 +162,7 @@ Error: expect(received).toEqual(expected) // deep equality
             - generic [ref=e115]: Gemini · Google
             - generic [ref=e116]: +
           - generic [ref=e118]:
-            - paragraph [ref=e120]: Goes technical. Mechanisms, architecture, trade-offs, comparisons and the failure modes — grounded against live web search rather than recalled from training.
+            - paragraph [ref=e120]: Goes technical. Mechanisms, architecture, trade-offs, comparisons and the failure modes - grounded against live web search rather than recalled from training.
             - generic [ref=e121]:
               - generic [ref=e122]:
                 - term [ref=e123]: Model
@@ -218,7 +218,7 @@ Error: expect(received).toEqual(expected) // deep equality
           - paragraph [ref=e164]: Open a node
           - heading "Give it the question you keep postponing." [level=2] [ref=e165]: Give it thequestion youkeep postponing.
         - generic [ref=e166]:
-          - paragraph [ref=e167]: Free to start. Documents are stored against your account permanently — every report you generate stays searchable in your history.
+          - paragraph [ref=e167]: Free to start. Documents are stored against your account permanently - every report you generate stays searchable in your history.
           - generic [ref=e168]:
             - link "Create an account" [ref=e169] [cursor=pointer]:
               - /url: /register

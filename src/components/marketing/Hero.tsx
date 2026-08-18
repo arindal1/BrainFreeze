@@ -49,7 +49,7 @@ export function Hero() {
           stagger: 0.06,
         });
 
-        // Scroll: the headline is scrubbed apart — variable weight drops,
+        // Scroll: the headline is scrubbed apart - variable weight drops,
         // tracking opens, the block drifts up faster than the page.
         gsap.to(".hero-type", {
           fontWeight: 400,
@@ -98,7 +98,7 @@ export function Hero() {
 
         <div className="mt-10 grid gap-x-14 gap-y-8 md:grid-cols-[minmax(0,40ch)_auto] md:items-end">
           <p className="hero-meta lede">
-            Three models take your question at the same time — broad ground truth, technical
+            Three models take your question at the same time - broad ground truth, technical
             depth, and what actually changed this week. Brain Freeze queues the run, works it in
             the background, and hands back a single structured markdown report. No spinner to
             sit and watch.

@@ -13,7 +13,7 @@ type ResultResponse = {
 };
 
 function duration(ms: number | null) {
-  if (!ms) return "—";
+  if (!ms) return "-";
   const s = Math.round(ms / 1000);
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
 }
@@ -80,13 +80,13 @@ export default function DocumentPage() {
             hour: "2-digit",
             minute: "2-digit",
           })
-        : "—",
+        : "-",
     ],
   ];
 
   return (
     <div className="flex flex-col gap-12">
-      {/* Reading progress — a single hairline, nothing more */}
+      {/* Reading progress - a single hairline, nothing more */}
       <motion.div
         aria-hidden
         style={{ scaleX: progress }}

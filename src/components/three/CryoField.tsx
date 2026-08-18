@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 /**
- * CRYO FIELD — a frozen fluid.
+ * CRYO FIELD - a frozen fluid.
  *
  * Flow-warped fbm drives a slow-moving supercooled medium; a voronoi cell
  * structure crystallises ice facets across it; a single hot subsurface bloom
@@ -93,7 +93,7 @@ const fragmentShader = /* glsl */ `
     float seam = smoothstep(0.075, 0.0, cell.y);
     float core = smoothstep(0.55, 0.02, cell.x);
 
-    // Heat source tracking the pointer — melts the lattice locally.
+    // Heat source tracking the pointer - melts the lattice locally.
     // Kept deliberately tight: the field is cold, the heat is an accent.
     float heatDist = length(p - m * 0.85);
     float heat = exp(-heatDist * 4.2) * uHeat;
@@ -112,7 +112,7 @@ const fragmentShader = /* glsl */ `
     float vig = smoothstep(1.25, 0.2, length(uv - 0.5));
     color *= mix(0.55, 1.0, vig);
 
-    // Dither — kills banding in the large dark field
+    // Dither - kills banding in the large dark field
     float dither = fract(sin(dot(uv * uResolution, vec2(12.9898, 78.233))) * 43758.5453);
     color += (dither - 0.5) * 0.016;
 
@@ -135,7 +135,7 @@ function Field({ heat }: { heat: number }) {
   const { size, viewport } = useThree();
 
   // The canvas sits behind page content, so it never receives pointer events
-  // itself — read the pointer from the window instead.
+  // itself - read the pointer from the window instead.
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       target.current.set(e.clientX / window.innerWidth, 1 - e.clientY / window.innerHeight);

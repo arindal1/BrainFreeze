@@ -21,7 +21,7 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
     setLoading(true);
     try {
       await onSubmit(query);
-      setNotice("Queued. Close the tab if you want — the run continues without you.");
+      setNotice("Queued. Close the tab if you want - the run continues without you.");
       setQuery("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't queue that.");
@@ -58,7 +58,7 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
         </Button>
       </div>
 
-      {/* Dispatch trace — indeterminate, because the queue depth is unknown */}
+      {/* Dispatch trace - indeterminate, because the queue depth is unknown */}
       <div className="mt-6 h-px overflow-hidden bg-[color:var(--line)]">
         {loading && <div className="sweep h-full w-1/3 bg-flare" />}
       </div>

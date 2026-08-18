@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   CRYO INSTRUMENT — design tokens
+   CRYO INSTRUMENT - design tokens
    Thesis: research as cryogenic instrumentation. A cold, near-black
    void field, glacial frost ink, one pale-periwinkle cold accent for
    structure, and exactly one hot vermillion signal reserved for the
@@ -10,12 +10,12 @@
    ============================================================ */
 
 :root {
-  /* Surfaces — cold blue-black, never pure #000 */
+  /* Surfaces - cold blue-black, never pure #000 */
   --void: #06070a;
   --carbon: #0b0d12;
   --carbon-hi: #10131a;
 
-  /* Ink — cool off-white, never pure #fff */
+  /* Ink - cool off-white, never pure #fff */
   --frost: #eef1f6;
   --frost-muted: #98a1b0;
   --frost-dim: #59616f;
@@ -24,7 +24,7 @@
   --cryo: #a9c4ff;
   --cryo-soft: rgba(169, 196, 255, 0.12);
 
-  /* The single hot signal — primary action + live processing only */
+  /* The single hot signal - primary action + live processing only */
   --flare: #ff4a1c;
   --flare-soft: rgba(255, 74, 28, 0.14);
 
@@ -32,7 +32,7 @@
   --line-strong: rgba(238, 241, 246, 0.2);
   --line-hot: rgba(255, 74, 28, 0.45);
 
-  /* Fluid type scale — extreme display-to-body contrast */
+  /* Fluid type scale - extreme display-to-body contrast */
   --step-nano: 0.6875rem;
   --step-micro: 0.75rem;
   --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.0625rem);
@@ -43,7 +43,7 @@
   --step-5: clamp(2.75rem, 1.5rem + 4.2vw, 5.5rem);
   --step-6: clamp(3.5rem, 0.5rem + 12vw, 12rem);
 
-  /* Layout rhythm — one shell width and one gutter for every section */
+  /* Layout rhythm - one shell width and one gutter for every section */
   --shell: 96rem;
   --gutter: clamp(1.25rem, 0.5rem + 2.5vw, 3.5rem);
   --section-y: clamp(5rem, 3rem + 7vw, 10rem);
@@ -100,8 +100,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--cryo);
-  outline-offset: 3px;
+  border-bottom: 2px solid var(--cryo);
 }
 
 p {
@@ -147,7 +146,7 @@ p {
     line-height: 1;
   }
 
-  /* Eyebrow — label plus its leading rule, as one component instead of
+  /* Eyebrow - label plus its leading rule, as one component instead of
      being hand-rolled with a different gap in every section. */
   .eyebrow {
     display: flex;
@@ -183,7 +182,7 @@ p {
     border-color: var(--line-hot);
   }
 
-  /* Frost block — the brutalist rhythm break against the void.
+  /* Frost block - the brutalist rhythm break against the void.
      NB: must not be called `.invert`; that is a Tailwind filter utility. */
   .frostblock {
     background: var(--frost);
@@ -194,7 +193,7 @@ p {
     color: var(--frost);
   }
 
-  /* Diagonal hatch — engineered texture instead of decorative gradients */
+  /* Diagonal hatch - engineered texture instead of decorative gradients */
   .hatch {
     background-image: repeating-linear-gradient(
       -45deg,
@@ -204,7 +203,7 @@ p {
   }
 }
 
-/* Film grain — cheap, GPU-composited, keeps the black from reading flat */
+/* Film grain - cheap, GPU-composited, keeps the black from reading flat */
 .grain {
   position: relative;
   isolation: isolate;
@@ -224,7 +223,7 @@ p {
 
 @layer components {
   /* Link with a rule that draws in from the left.
-     Deliberately has no `display` of its own — setting one here would
+     Deliberately has no `display` of its own - setting one here would
      override Tailwind's responsive `hidden` / `sm:inline-block`. */
   .draw {
     position: relative;
@@ -246,7 +245,7 @@ p {
     transform: scaleX(1);
   }
 
-  /* Pressure surface — flare bleeds outward from the pointer on hover */
+  /* Pressure surface - flare bleeds outward from the pointer on hover */
   .pressure {
     position: relative;
     overflow: hidden;
