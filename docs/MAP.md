@@ -24,17 +24,17 @@ brainfreeze/
     │
     ├── pipeline/                    Multi-agent orchestration
     │   ├── agents.ts                3 agent definitions + prompt builders
-    │   ├── orchestrator.ts          runResearchPipeline(jobId, userId) — full stage sequence
+    │   ├── orchestrator.ts          runResearchPipeline(jobId, userId) - full stage sequence
     │   └── eventBus.ts              JobEventBus (EventEmitter) for SSE progress events
     │
     ├── aggregator/
-    │   └── aggregator.ts            aggregateToMarkdown(topic, sections) — merges agent output into one doc
+    │   └── aggregator.ts            aggregateToMarkdown(topic, sections) - merges agent output into one doc
     │
     ├── queue/
     │   └── researchQueue.ts         In-process FIFO queue, configurable concurrency
     │
     ├── workers/
-    │   └── researchWorker.ts        enqueueResearchJob(jobId, userId) — pipeline + error handling wrapper
+    │   └── researchWorker.ts        enqueueResearchJob(jobId, userId) - pipeline + error handling wrapper
     │
     ├── repositories/
     │   └── researchRepository.ts    jobsRepository, resultsRepository, providerLogsRepository

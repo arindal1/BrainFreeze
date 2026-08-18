@@ -1,3 +1,4 @@
+
 # Deploying Brain Freeze (free tier)
 
 Brain Freeze is a standard Next.js app **with one important constraint**: research jobs run on an
@@ -7,7 +8,7 @@ Node process.
 
 > **This means Brain Freeze cannot run on a request-scoped serverless platform** (Vercel's default
 > serverless functions, Netlify Functions, AWS Lambda, etc.). Each invocation there is a fresh,
-> short-lived process — a job enqueued in one invocation is invisible to the next, and queued work
+> short-lived process - a job enqueued in one invocation is invisible to the next, and queued work
 > can be silently dropped the moment the function that enqueued it returns. You need a host that
 > runs `next start` as one persistent process. Render, Railway, Fly.io, and a self-managed VM all
 > work; this guide uses **Render** because its free web service tier is the simplest to wire up.
@@ -18,9 +19,9 @@ Node process.
 |---|---|---|
 | App hosting (persistent Node process) | [Render](https://render.com) Web Service | 750 hrs/month, spins down after 15 min idle |
 | Postgres database | [Neon](https://neon.tech) or [Supabase](https://supabase.com) | Both have a permanent free Postgres tier |
-| Auth secret | generated locally, no service needed | — |
+| Auth secret | generated locally, no service needed | - |
 | Google OAuth (optional) | [Google Cloud Console](https://console.cloud.google.com/) | Free |
-| LLM providers | Gemini (Google AI Studio), OpenRouter (Nemotron), xAI (Grok) | Each has a free/no-cost tier or trial credit — see below |
+| LLM providers | Gemini (Google AI Studio), OpenRouter (Nemotron), xAI (Grok) | Each has a free/no-cost tier or trial credit - see below |
 
 ---
 
@@ -36,7 +37,7 @@ Node process.
    ```
    This creates the tables defined in [`src/db/schema.ts`](../src/db/schema.ts) via Drizzle.
 
-*(Supabase's free Postgres works identically — just use its connection string instead.)*
+*(Supabase's free Postgres works identically - just use its connection string instead.)*
 
 ## 2. Generate an auth secret
 
@@ -50,7 +51,7 @@ Save the output as `AUTH_SECRET`.
 
 ## 3. (Optional) Set up Google sign-in
 
-The Google button is automatically hidden if these two variables aren't set — you can skip this
+The Google button is automatically hidden if these two variables aren't set - you can skip this
 section entirely and use email/password only.
 
 1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an OAuth
@@ -61,16 +62,16 @@ section entirely and use email/password only.
 
 ## 4. Get LLM provider keys
 
-Each provider supports **key rotation** — you can set `..._KEY_1` through `..._KEY_10` and the app
+Each provider supports **key rotation** - you can set `..._KEY_1` through `..._KEY_10` and the app
 fails over automatically on rate limits (`src/providers/keyManager.ts`). One key each is enough to
 start. If a provider has no key configured at all, it returns clearly-labelled placeholder text
 instead of failing the whole job.
 
-- **Gemini** — [Google AI Studio](https://aistudio.google.com/apikey) → free tier API key →
+- **Gemini** - [Google AI Studio](https://aistudio.google.com/apikey) → free tier API key →
   `GEMINI_KEY_1`.
-- **Nemotron (via OpenRouter)** — [OpenRouter](https://openrouter.ai/keys) → create a key. The app
+- **Nemotron (via OpenRouter)** - [OpenRouter](https://openrouter.ai/keys) → create a key. The app
   calls a `:free` OpenRouter model, so no paid credits are required → `OPENROUTER_KEY_1`.
-- **Grok (via xAI)** — [xAI Console](https://console.x.ai/) → create a key (xAI currently issues
+- **Grok (via xAI)** - [xAI Console](https://console.x.ai/) → create a key (xAI currently issues
   trial credit to new accounts) → `GROK_KEY_1`.
 
 ## 5. Deploy to Render
@@ -98,7 +99,7 @@ instead of failing the whole job.
    WORKER_CONCURRENCY=2
    ```
 
-5. Deploy. Render gives you `https://<name>.onrender.com` — NextAuth (`trustHost: true` is already
+5. Deploy. Render gives you `https://<name>.onrender.com` - NextAuth (`trustHost: true` is already
    set in [`src/auth/auth.ts`](../src/auth/auth.ts)) will derive callback URLs from the incoming
    request automatically, so no `NEXTAUTH_URL` is required.
 
@@ -111,6 +112,18 @@ but there's no guarantee of *when* that happens. For a hobby/demo deployment thi
 trade-off; if you need guaranteed background processing, upgrade to a paid always-on instance or
 move the queue to Redis/BullMQ as noted in `src/queue/researchQueue.ts`.
 
+**Built-in self-ping mitigation**: [`instrumentation.ts`](../instrumentation.ts) starts a 10-minute
+self-ping (shorter than Render's 15-minute idle window) against `GET /api/health` once the server
+process boots, using Render's auto-injected `RENDER_EXTERNAL_URL` env var (falls back to a
+manually-set `SELF_URL` on other hosts). This keeps an **already-running** instance from going back
+to sleep as long as it gets at least one real visit within the first 15 minutes - it cannot wake a
+truly cold (already-sleeping) instance, since nothing runs until Render restarts the process on the
+next inbound request. Combined with the DB keep-alive ping in `src/db/index.ts` (which stops Neon's
+separate 5-minute compute auto-suspend), a lightly-trafficked deployment should stay warm
+indefinitely. For guaranteed uptime regardless of traffic, pair this with an external uptime
+monitor (e.g. UptimeRobot, cron-job.org) hitting `/api/health` every ~10 minutes, or upgrade to a
+paid always-on instance.
+
 ## 6. Verify
 
 - `https://<name>.onrender.com` loads the marketing page.
@@ -121,12 +134,12 @@ move the queue to Redis/BullMQ as noted in `src/queue/researchQueue.ts`.
 
 ## Troubleshooting
 
-- **`[auth][error] TypeError: fetch failed` + `/api/auth/error?error=Configuration` 500** — this
+- **`[auth][error] TypeError: fetch failed` + `/api/auth/error?error=Configuration` 500** - this
   happened when the Google provider was registered with empty `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`.
   Fixed: the app now only registers the Google provider when both variables are present, and hides
   the "Continue with Google" button otherwise. If you still see this, double check both variables
   are set (not empty strings) on your host.
-- **Database connection errors on Render** — Neon's pooled connection string requires
+- **Database connection errors on Render** - Neon's pooled connection string requires
   `sslmode=require`; make sure it's included in `DATABASE_URL`.
-- **Sessions don't persist / random sign-outs** — usually means `AUTH_SECRET` isn't set or changes
+- **Sessions don't persist / random sign-outs** - usually means `AUTH_SECRET` isn't set or changes
   between deploys (e.g. regenerated on every build). Set it once as a static environment variable.

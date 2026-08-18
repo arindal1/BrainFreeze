@@ -12,13 +12,14 @@ All notable changes to Brain Freeze are documented here. Format follows [Keep a 
 ### Added
 
 - **DB keep-alive ping**: `src/db/index.ts` now starts a 5-minute `setInterval` (`select 1`) singleton on module load to stop Neon (and similar managed Postgres providers) from suspending the compute after 5 minutes of idle, avoiding cold-start latency on the next request. The interval is `unref()`'d so it never keeps a script/test process alive by itself, and is cached on `globalThis` like the existing DB client singleton to survive dev HMR.
+- **App self-ping keep-alive**: new `GET /api/health` route (`src/app/api/health/route.ts`, no auth/DB dependency) plus `instrumentation.ts`, which starts a 10-minute self-ping against it on server boot using Render's auto-injected `RENDER_EXTERNAL_URL` (or a manual `SELF_URL`). Keeps an already-awake Render free-tier instance from spinning down after its 15-minute idle window; documented (including its limits - it can't wake an instance that's already asleep) in `docs/DEPLOYMENT.md`.
 - **SEO pass**: added `src/app/robots.ts` (allows all crawlers on marketing/auth pages, disallows `/dashboard` and `/api/`, points at the sitemap), `src/app/sitemap.ts` (`/`, `/login`, `/register`), and `src/app/manifest.ts` (web app manifest for installability/PWA metadata). Added `alternates.canonical`, a `viewport` export (`themeColor`/`colorScheme`), explicit `robots.googleBot` directives (`max-image-preview: large`, `max-snippet`/`max-video-preview: -1`), and a JSON-LD `<script>` (`Organization` + `WebSite` + `SoftwareApplication`) in `RootLayout` for rich-result eligibility. `src/app/dashboard/layout.tsx` now sets `robots: { index: false, follow: false, nocache: true }` since it's an auth-gated, non-public area. Replaced the static `og-image.svg`/hardcoded OG/Twitter `images` metadata with generated `src/app/opengraph-image.tsx` / `src/app/twitter-image.tsx` (via a shared `src/lib/ogImage.tsx` renderer using `next/og`'s `ImageResponse`), so social previews are correctly-sized PNGs auto-linked by Next's file-convention metadata instead of manually-listed SVGs.
 
 ## [0.5.1] - 2026-08-18
 
 ### Fixed
 
-- **Google sign-in crashed the whole auth flow when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` weren't set**: NextAuth still attempted OIDC discovery against Google for a provider registered with empty credentials, logging `[auth][error] TypeError: fetch failed` and then hard-500ing on `/api/auth/error?error=Configuration` the moment "Continue with Google" was clicked. `src/auth/auth.ts` now only registers the Google provider when both env vars are present (exported as `isGoogleAuthEnabled`), and `LoginForm`/`RegisterForm` hide the "Continue with Google" button entirely when it's unconfigured — email/password auth is unaffected either way.
+- **Google sign-in crashed the whole auth flow when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` weren't set**: NextAuth still attempted OIDC discovery against Google for a provider registered with empty credentials, logging `[auth][error] TypeError: fetch failed` and then hard-500ing on `/api/auth/error?error=Configuration` the moment "Continue with Google" was clicked. `src/auth/auth.ts` now only registers the Google provider when both env vars are present (exported as `isGoogleAuthEnabled`), and `LoginForm`/`RegisterForm` hide the "Continue with Google" button entirely when it's unconfigured - email/password auth is unaffected either way.
 - Added `trustHost: true` to the NextAuth config, required once the app is deployed behind a PaaS reverse proxy (Render, Railway, Fly.io, etc.) so callback URLs are derived correctly without also requiring `NEXTAUTH_URL`.
 
 ### Added
@@ -29,15 +30,15 @@ All notable changes to Brain Freeze are documented here. Format follows [Keep a 
 
 ### Fixed
 
-- **Mobile UI audit**: `JobRow` "Stop"/"Delete" actions were revealed only via `:hover`/`:focus-within`, which don't exist on touch devices — on phones and tablets these controls were permanently invisible and untappable. Now visible by default and only hover-hidden at `md:` and above (desktop pointer devices).
+- **Mobile UI audit**: `JobRow` "Stop"/"Delete" actions were revealed only via `:hover`/`:focus-within`, which don't exist on touch devices - on phones and tablets these controls were permanently invisible and untappable. Now visible by default and only hover-hidden at `md:` and above (desktop pointer devices).
 - Research document markdown tables (`.doc table`) used `width: 100%` with no scroll container, so wide tables (common in generated reports) were silently clipped on narrow phone viewports by the page's `overflow-x: hidden`. Tables now scroll horizontally within themselves (`display: block; width: max-content; max-width: 100%; overflow-x: auto`) instead of losing columns off-screen.
 
 ## [0.4.0] - 2026-08-18
 
 ### Changed
 
-- **Marketing site UI audit and pass** (Playwright-driven, screenshots at 1440/960/390px): fixed `Protocol`'s horizontal "side scroller" section, which pinned with zero scroll distance and appeared frozen because its GSAP `matchMedia` breakpoint (900px) didn't match the Tailwind breakpoint at which the track actually switched to `flex-row` (`lg`, 1024px) — both now use 1024px, and a bottom progress rail was added so horizontal travel is legible.
-- Introduced a shared layout rhythm — `--shell` (96rem), `--gutter`, `--section-y` tokens plus `.shell` / `.section-y` utility classes — and moved `Hero`, `Protocol`, `Agents`, `Brief`, `Nav`, and `Footer` onto it, replacing five slightly-different hand-rolled `mx-auto max-w-[110rem] px-5 md:px-10 py-*` combinations that were the source of the reported grid/spacing inconsistency.
+- **Marketing site UI audit and pass** (Playwright-driven, screenshots at 1440/960/390px): fixed `Protocol`'s horizontal "side scroller" section, which pinned with zero scroll distance and appeared frozen because its GSAP `matchMedia` breakpoint (900px) didn't match the Tailwind breakpoint at which the track actually switched to `flex-row` (`lg`, 1024px) - both now use 1024px, and a bottom progress rail was added so horizontal travel is legible.
+- Introduced a shared layout rhythm - `--shell` (96rem), `--gutter`, `--section-y` tokens plus `.shell` / `.section-y` utility classes - and moved `Hero`, `Protocol`, `Agents`, `Brief`, `Nav`, and `Footer` onto it, replacing five slightly-different hand-rolled `mx-auto max-w-[110rem] px-5 md:px-10 py-*` combinations that were the source of the reported grid/spacing inconsistency.
 - Retuned the fluid type scale (`--step-3` through `--step-6`) so display headings no longer overflow their grid columns at mid-size viewports (960–1200px).
 - Extracted a shared `.eyebrow` component (label + leading rule) and `CtaLink` component to replace four independently hand-rolled copies of each that had drifted in gap/padding.
 - Moved bespoke CSS primitives (`.shell`, `.display`, `.label`, `.eyebrow`, `.lede`, `.slab`, `.draw`, `.pressure`, `.hatch`) into a Tailwind `@layer components` block, and renamed `.invert` to `.frostblock`, fixing a name collision with Tailwind's own `invert` filter utility and a specificity bug where `.draw`'s implicit `display: inline-block` silently overrode responsive `hidden` / `sm:inline-block` utilities on nav/footer links.
@@ -48,7 +49,7 @@ All notable changes to Brain Freeze are documented here. Format follows [Keep a 
 
 - Brutalist-themed Next.js util routes, reusing existing design primitives (`CryoField`, `.eyebrow`, `.lede`, `.pressure`, `.signal`, `.sweep`, `Button`): `src/app/not-found.tsx` (404 "NODE NOT FOUND"), `src/app/error.tsx` (route error boundary, "PIPELINE INTERRUPTED", shows error message + `reset()` retry), `src/app/global-error.tsx` (root layout failure fallback, "INSTRUMENT OFFLINE"), `src/app/loading.tsx` (root Suspense fallback).
 - `CryoFieldBackdrop` client component wrapping `next/dynamic(..., { ssr: false })` so the WebGL field can be used from server components like `not-found.tsx` (a bare `dynamic({ ssr: false })` call is rejected by Next.js inside Server Components).
-- Redesigned `src/app/icon.svg` and `public/og-image.svg` to match the Cryo Instrument theme: void-black background, hard-edged cryo-blue crystal facet mark, a single vermillion flare square as the "hot signal" accent, hairline borders — replacing the old gold/teal diamond mark.
+- Redesigned `src/app/icon.svg` and `public/og-image.svg` to match the Cryo Instrument theme: void-black background, hard-edged cryo-blue crystal facet mark, a single vermillion flare square as the "hot signal" accent, hairline borders - replacing the old gold/teal diamond mark.
 - Playwright UI audit harness (`playwright.config.ts`, `tests/ui.audit.spec.ts`) that screenshots the landing page at three breakpoints, walks the pinned `Protocol` scroll, and asserts no console errors.
 
 ### Fixed
@@ -92,7 +93,7 @@ All notable changes to Brain Freeze are documented here. Format follows [Keep a 
 
 ### Fixed
 
-- **Cancel race condition**: `enqueueResearchJob` unconditionally overwrote job status to `PROCESSING` when its queued task started, clobbering a `CANCELLED` status set in the meantime — cancelling a still-queued job silently did nothing. The worker now re-checks the job's current status (and that it still exists) before starting the pipeline and skips it if already cancelled/deleted.
+- **Cancel race condition**: `enqueueResearchJob` unconditionally overwrote job status to `PROCESSING` when its queued task started, clobbering a `CANCELLED` status set in the meantime - cancelling a still-queued job silently did nothing. The worker now re-checks the job's current status (and that it still exists) before starting the pipeline and skips it if already cancelled/deleted.
 - **Unicode query normalization bug**: `normalizeQuery` stripped non-ASCII characters via `\w`, so any query written in a non-Latin script (CJK, Cyrillic, accented Latin, etc.) normalized to an empty string and was rejected with "Query cannot be empty". Now uses Unicode-aware `\p{L}\p{N}` matching so international queries work correctly.
 
 ### Security
@@ -103,7 +104,7 @@ All notable changes to Brain Freeze are documented here. Format follows [Keep a 
 
 ### Security
 
-- Added `middleware.ts` with IP-based rate limiting (in-memory fixed window) on spam/abuse-prone routes: `POST /api/register` (5/hr), `POST /api/research` (20/min), `POST /api/auth/callback/credentials` (10/5min) — mitigates account-creation spam, job-flood/cost abuse against LLM keys, and credential brute-forcing.
+- Added `middleware.ts` with IP-based rate limiting (in-memory fixed window) on spam/abuse-prone routes: `POST /api/register` (5/hr), `POST /api/research` (20/min), `POST /api/auth/callback/credentials` (10/5min) - mitigates account-creation spam, job-flood/cost abuse against LLM keys, and credential brute-forcing.
 - Added security response headers in `next.config.ts`: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`.
 - `/login` and `/register` now redirect already-authenticated users to `/dashboard` server-side instead of re-rendering the auth forms.
 
