@@ -1,0 +1,414 @@
+@import "tailwindcss";
+
+/* ============================================================
+   CRYO INSTRUMENT — design tokens
+   Thesis: research as cryogenic instrumentation. A cold, near-black
+   void field, glacial frost ink, one pale-periwinkle cold accent for
+   structure, and exactly one hot vermillion signal reserved for the
+   single most important action and for live machine state.
+   No rounded corners. No glass. Hairlines and hard edges only.
+   ============================================================ */
+
+:root {
+  /* Surfaces — cold blue-black, never pure #000 */
+  --void: #06070a;
+  --carbon: #0b0d12;
+  --carbon-hi: #10131a;
+
+  /* Ink — cool off-white, never pure #fff */
+  --frost: #eef1f6;
+  --frost-muted: #98a1b0;
+  --frost-dim: #59616f;
+
+  /* Cold structural accent */
+  --cryo: #a9c4ff;
+  --cryo-soft: rgba(169, 196, 255, 0.12);
+
+  /* The single hot signal — primary action + live processing only */
+  --flare: #ff4a1c;
+  --flare-soft: rgba(255, 74, 28, 0.14);
+
+  --line: rgba(238, 241, 246, 0.09);
+  --line-strong: rgba(238, 241, 246, 0.2);
+  --line-hot: rgba(255, 74, 28, 0.45);
+
+  /* Fluid type scale — extreme display-to-body contrast */
+  --step-nano: 0.6875rem;
+  --step-micro: 0.75rem;
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.0625rem);
+  --step-1: clamp(1.15rem, 1rem + 0.7vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+  --step-3: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+  --step-4: clamp(2.25rem, 1.4rem + 3.4vw, 4.25rem);
+  --step-5: clamp(2.75rem, 1.5rem + 4.2vw, 5.5rem);
+  --step-6: clamp(3.5rem, 0.5rem + 12vw, 12rem);
+
+  /* Layout rhythm — one shell width and one gutter for every section */
+  --shell: 96rem;
+  --gutter: clamp(1.25rem, 0.5rem + 2.5vw, 3.5rem);
+  --section-y: clamp(5rem, 3rem + 7vw, 10rem);
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Type stacks. Syne (display) / Space Grotesk (text) / Martian Mono (labels)
+     are loaded from the Google Fonts stylesheet in app/layout.tsx. */
+  --ff-display: "Syne", "Space Grotesk", system-ui, sans-serif;
+  --ff-text: "Space Grotesk", system-ui, sans-serif;
+  --ff-mono: "Martian Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-carbon: var(--carbon);
+  --color-carbon-hi: var(--carbon-hi);
+  --color-frost: var(--frost);
+  --color-frost-muted: var(--frost-muted);
+  --color-frost-dim: var(--frost-dim);
+  --color-cryo: var(--cryo);
+  --color-flare: var(--flare);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-display: var(--ff-display);
+  --font-text: var(--ff-text);
+  --font-mono: var(--ff-mono);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  color-scheme: dark;
+  background: var(--void);
+}
+
+body {
+  background: var(--void);
+  color: var(--frost);
+  font-family: var(--ff-text);
+  font-size: var(--step-0);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--flare);
+  color: var(--frost);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cryo);
+  outline-offset: 3px;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* All bespoke primitives live in the components layer so that Tailwind
+   utilities (which are emitted in a later layer) always win a conflict.
+   Without this, `.draw`'s display and `.invert`'s name silently override
+   `hidden` / `sm:inline-block` and collide with Tailwind's own `invert`. */
+@layer components {
+  /* ---------- Layout ---------- */
+
+  /* One shell + one gutter shared by every section, so section edges,
+     nav, and footer all sit on the same vertical rules. */
+  .shell {
+    width: 100%;
+    max-width: var(--shell);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .section-y {
+    padding-block: var(--section-y);
+  }
+
+  /* ---------- Typographic primitives ---------- */
+
+  .display {
+    font-family: var(--ff-display);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .label {
+    font-family: var(--ff-mono);
+    font-size: var(--step-nano);
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* Eyebrow — label plus its leading rule, as one component instead of
+     being hand-rolled with a different gap in every section. */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--cryo);
+  }
+  .eyebrow::before {
+    content: "";
+    display: block;
+    width: 2.5rem;
+    height: 1px;
+    background: currentColor;
+    flex: none;
+  }
+
+  .lede {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--frost-muted);
+    max-width: 46ch;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Surface primitives (hard edge, zero radius) ---------- */
+
+  .slab {
+    background: var(--carbon);
+    border: 1px solid var(--line-strong);
+  }
+
+  .slab-hot {
+    border-color: var(--line-hot);
+  }
+
+  /* Frost block — the brutalist rhythm break against the void.
+     NB: must not be called `.invert`; that is a Tailwind filter utility. */
+  .frostblock {
+    background: var(--frost);
+    color: var(--void);
+  }
+  .frostblock ::selection {
+    background: var(--void);
+    color: var(--frost);
+  }
+
+  /* Diagonal hatch — engineered texture instead of decorative gradients */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--line) 0 1px,
+      transparent 1px 7px
+    );
+  }
+}
+
+/* Film grain — cheap, GPU-composited, keeps the black from reading flat */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Microinteractions ---------- */
+
+@layer components {
+  /* Link with a rule that draws in from the left.
+     Deliberately has no `display` of its own — setting one here would
+     override Tailwind's responsive `hidden` / `sm:inline-block`. */
+  .draw {
+    position: relative;
+  }
+  .draw::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.2em;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--ease-expo);
+  }
+  .draw:hover::after,
+  .draw:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* Pressure surface — flare bleeds outward from the pointer on hover */
+  .pressure {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .pressure::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    z-index: -1;
+    background: radial-gradient(
+      circle at var(--px, 50%) var(--py, 50%),
+      var(--flare) 0%,
+      var(--flare) 40%,
+      transparent 70%
+    );
+    transform: scale(0);
+    transition: transform 0.5s var(--ease-expo);
+  }
+  .pressure:hover::before,
+  .pressure:focus-visible::before {
+    transform: scale(1);
+  }
+}
+
+/* Live signal dot */
+@keyframes signal {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(0.7); }
+}
+.signal {
+  animation: signal 1.6s var(--ease-glide) infinite;
+}
+
+/* Indeterminate instrument bar */
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.sweep {
+  animation: sweep 1.8s var(--ease-snap) infinite;
+}
+
+/* Marquee track */
+@keyframes slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.slide {
+  animation: slide 34s linear infinite;
+}
+
+/* ---------- Research document ---------- */
+
+.doc {
+  font-size: var(--step-0);
+}
+.doc h1,
+.doc h2,
+.doc h3 {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  color: var(--frost);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 2.2em 0 0.7em;
+}
+.doc h1 { font-size: var(--step-3); margin-top: 0; }
+.doc h2 {
+  font-size: var(--step-2);
+  border-top: 1px solid var(--line-strong);
+  padding-top: 0.9em;
+}
+.doc h3 { font-size: var(--step-1); color: var(--cryo); }
+.doc p {
+  color: var(--frost-muted);
+  line-height: 1.7;
+  margin-bottom: 1.15em;
+  max-width: 70ch;
+}
+.doc a {
+  color: var(--cryo);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.doc a:hover { color: var(--flare); }
+.doc strong { color: var(--frost); font-weight: 600; }
+.doc ul, .doc ol {
+  color: var(--frost-muted);
+  margin: 0 0 1.15em 1.3em;
+  line-height: 1.7;
+}
+.doc ul { list-style: square; }
+.doc ol { list-style: decimal; }
+.doc li { margin-bottom: 0.45em; padding-left: 0.3em; }
+.doc li::marker { color: var(--flare); }
+.doc blockquote {
+  border-left: 2px solid var(--flare);
+  padding-left: 1.2em;
+  margin: 0 0 1.15em;
+  color: var(--frost);
+}
+.doc code {
+  color: var(--cryo);
+  background: var(--carbon-hi);
+  border: 1px solid var(--line);
+  padding: 0.1em 0.4em;
+  font-family: var(--ff-mono);
+  font-size: 0.82em;
+}
+.doc pre {
+  background: var(--carbon-hi);
+  border: 1px solid var(--line-strong);
+  padding: 1.3em;
+  overflow-x: auto;
+  margin-bottom: 1.15em;
+}
+.doc pre code { background: none; border: 0; padding: 0; }
+.doc hr { border: 0; border-top: 1px solid var(--line-strong); margin: 2.5em 0; }
+
+/* Tables can be wider than a phone screen (many columns of stats, specs,
+   etc.). Rather than clipping or forcing the whole page to scroll
+   sideways, make the table itself the scroll container. */
+.doc table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.15em;
+  font-size: 0.92em;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.doc th, .doc td {
+  border: 1px solid var(--line-strong);
+  padding: 0.65em 0.9em;
+  text-align: left;
+}
+.doc th {
+  font-family: var(--ff-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--frost);
+  background: var(--carbon-hi);
+}
+.doc td { color: var(--frost-muted); }
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin instrument scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--carbon-hi); border: 1px solid var(--line-strong); }
+::-webkit-scrollbar-thumb:hover { background: var(--frost-dim); }
