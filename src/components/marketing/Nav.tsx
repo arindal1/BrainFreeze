@@ -33,7 +33,7 @@ export function Nav() {
             Brain&nbsp;Freeze
           </span>
           <span className="label hidden text-frost-dim transition-colors group-hover:text-flare sm:inline">
-            v0.7
+            v0.4
           </span>
         </Link>
 

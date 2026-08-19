@@ -2,6 +2,12 @@
 
 All notable changes to Brain Freeze are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
+## [0.7.3] - 2026-08-19
+
+### Changed
+
+- **"Ready to read" now only shows unread documents**: previously every completed job stayed listed there forever (duplicating the Archive). `research_jobs` gained an `opened_at` timestamp column; opening a finished document (`GET /api/research/[id]`) now stamps it via a new `jobsRepository.markOpened()` on first view, and the Ready page (`src/app/dashboard/completed/page.tsx`) filters to `status === "COMPLETED" && !openedAt`. Once opened, a job disappears from Ready but remains in the Archive indefinitely until explicitly deleted - Archive's behavior is unchanged.
+
 ## [0.7.2] - 2026-08-19
 
 ### Changed

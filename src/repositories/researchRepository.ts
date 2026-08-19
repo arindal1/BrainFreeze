@@ -1,6 +1,6 @@
 import "server-only";
 import { db, schema } from "@/db";
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull } from "drizzle-orm";
 
 const ACTIVE_STATUSES = ["PENDING", "QUEUED", "PROCESSING"] as const;
 
@@ -60,6 +60,16 @@ export const jobsRepository = {
     await db
       .delete(schema.researchJobs)
       .where(and(eq(schema.researchJobs.id, id), eq(schema.researchJobs.userId, userId)));
+  },
+
+  /** Marks a completed job's document as opened, moving it out of the "Ready" section. No-op if already opened. */
+  async markOpened(id: string, userId: string) {
+    const [job] = await db
+      .update(schema.researchJobs)
+      .set({ openedAt: new Date() })
+      .where(and(eq(schema.researchJobs.id, id), eq(schema.researchJobs.userId, userId), isNull(schema.researchJobs.openedAt)))
+      .returning();
+    return job ?? null;
   },
 };
 

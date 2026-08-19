@@ -6,7 +6,7 @@ import { JobRow } from "@/components/dashboard/JobRow";
 
 export default function ReadyPage() {
   const { jobs, loading, remove } = useResearchJobs();
-  const ready = jobs.filter((j) => j.status === "COMPLETED");
+  const ready = jobs.filter((j) => j.status === "COMPLETED" && !j.openedAt);
 
   return (
     <div className="flex flex-col gap-14">

@@ -13,6 +13,7 @@ export type ResearchJob = {
   createdAt: string;
   startedAt: string | null;
   completedAt: string | null;
+  openedAt: string | null;
 };
 
 const TERMINAL_STATUSES = new Set(["COMPLETED", "FAILED"]);

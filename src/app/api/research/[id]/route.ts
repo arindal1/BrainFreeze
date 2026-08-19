@@ -8,12 +8,20 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const job = await jobsRepository.findById(id);
+  let job = await jobsRepository.findById(id);
   if (!job || job.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const result = job.status === "COMPLETED" ? await resultsRepository.findByJobId(id) : null;
+
+  // Viewing a finished document marks it read, moving it out of the "Ready"
+  // section - it stays visible in the Archive section indefinitely.
+  if (job.status === "COMPLETED" && !job.openedAt) {
+    const opened = await jobsRepository.markOpened(id, session.user.id);
+    if (opened) job = opened;
+  }
+
   return NextResponse.json({ job, result });
 }
 

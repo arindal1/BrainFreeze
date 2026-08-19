@@ -31,6 +31,10 @@ export const researchJobs = pgTable("research_jobs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   startedAt: timestamp("started_at"),
   completedAt: timestamp("completed_at"),
+  // Set the first time the finished document is opened. Drives the "Ready"
+  // section (unread completed jobs only) vs. the "Archive" section (all
+  // jobs, forever, until deleted).
+  openedAt: timestamp("opened_at"),
 });
 
 export const researchResults = pgTable("research_results", {
