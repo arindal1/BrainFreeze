@@ -1,7 +1,7 @@
 import { LLMProvider } from "./types";
-import { GeminiProvider, NemotronProvider, GroqProvider } from "./implementations";
+import { GeminiProvider, NemotronProvider } from "./implementations";
 
-export type ProviderName = "gemini" | "nemotron" | "groq";
+export type ProviderName = "gemini" | "nemotron";
 
 /** Factory pattern: create the requested provider dynamically by name. */
 export function createProvider(name: ProviderName): LLMProvider {
@@ -10,8 +10,6 @@ export function createProvider(name: ProviderName): LLMProvider {
       return new GeminiProvider();
     case "nemotron":
       return new NemotronProvider();
-    case "groq":
-      return new GroqProvider();
     default: {
       const exhaustive: never = name;
       throw new Error(`Unknown provider: ${exhaustive}`);

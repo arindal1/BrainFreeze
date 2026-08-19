@@ -1,6 +1,6 @@
 # Architecture
 
-Brain Freeze is an asynchronous, multi-agent AI research platform. A user submits a query, the request is queued, three LLM-backed agents research it in parallel in the background, and results are aggregated into a single markdown document - with live progress pushed to the client over SSE.
+Brain Freeze is an asynchronous, multi-agent AI research platform. A user submits a query, the request is queued, three agents research it in parallel in the background (two LLM-backed, one direct live-search), and results are aggregated into a single markdown document - with live progress pushed to the client over SSE.
 
 ## High-level flow
 
@@ -12,7 +12,7 @@ sequenceDiagram
     participant Q as ResearchQueue (in-process)
     participant W as researchWorker
     participant P as Orchestrator (pipeline)
-    participant Agents as Agents A/B/C (Nemotron/Gemini/Grok)
+    participant Agents as Agents A/B/C (Nemotron/Gemini/Tavily+Firecrawl)
     participant Agg as Aggregator
     participant DB as Postgres (Drizzle)
     participant Bus as JobEventBus (SSE)
@@ -42,7 +42,7 @@ sequenceDiagram
   - `implementations.ts`: Gemini/Nemotron (via OpenRouter)/Grok concrete providers, each falling back to deterministic mock output when no key is configured or the call fails.
   - `providerFactory.ts`: `createProvider(name)` exhaustive factory.
 - **`src/pipeline`** - Orchestration (Pipeline + Observer patterns).
-  - `agents.ts`: 3 agent definitions - broad factual (Nemotron), technical deep-dive (Gemini, web-search grounded), current developments (Grok, live-search grounded) - each with its own subject-aware prompt builder that generalizes across topics, products, companies, sectors, people, and events.
+  - `agents.ts`: 3 agent definitions - broad factual (Nemotron), technical deep-dive (Gemini, web-search grounded) - each with its own subject-aware prompt builder that generalizes across topics, products, companies, sectors, people, and events - plus current developments, which is not LLM-backed: the orchestrator returns Tavily web search results (and a Firecrawl scrape for URL queries) for that section directly, unsummarized.
   - `orchestrator.ts`: runs agents in parallel via `Promise.allSettled`, publishes progress at every stage, handles all-agents-failed case.
   - `eventBus.ts`: global `EventEmitter`-based pub/sub keyed by userId, consumed via native SSE.
 - **`src/aggregator`** - Merges per-agent sections into one structured markdown document with references footer.

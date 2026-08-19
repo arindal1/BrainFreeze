@@ -7,7 +7,6 @@
 const PRICE_PER_1K_TOKENS: Record<string, { input: number; output: number }> = {
   gemini: { input: 0.0003, output: 0.0025 },
   nemotron: { input: 0, output: 0 },
-  groq: { input: 0.00059, output: 0.00079 },
 };
 
 export function estimateCostUsd(provider: string, promptTokens: number, completionTokens: number): number {

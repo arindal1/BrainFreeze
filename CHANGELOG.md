@@ -2,6 +2,12 @@
 
 All notable changes to Brain Freeze are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
+## [0.7.2] - 2026-08-19
+
+### Changed
+
+- **Removed the Groq provider**: agent-c ("Current Developments") is no longer LLM-backed. It now returns Tavily web search results directly - and, for URL queries, a Firecrawl page scrape - unedited and unsummarized, instead of feeding them into a Groq (`llama-3.3-70b-versatile`) prompt. `src/providers/implementations.ts` drops `GroqProvider`; `providerFactory.ts`'s `ProviderName` shrinks to `"gemini" | "nemotron"`; `pipeline/agents.ts`'s `agent-c` definition drops `buildPrompt` in favor of a `provider: "search"` marker; `orchestrator.ts` special-cases that marker to build the section from `tavilySearch`/`firecrawlScrape` directly instead of calling `provider.generate()`. Provider logs for agent-c now record under `"search"` instead of `"groq"`. `src/lib/pricing.ts` drops the Groq cost-per-token entry, `.env.example` drops `GROQ_KEY_1/2`, and the marketing `Agents.tsx` card for agent C updated to describe the direct-search behavior.
+
 ## [0.7.1] - 2026-08-19
 
 ### Added

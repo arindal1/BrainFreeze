@@ -10,23 +10,23 @@ import { jobEventBus } from "./eventBus";
 import { sendPushToUser } from "@/lib/push";
 
 /**
- * The "current developments" agent (agent-c) is grounded with live context
- * before its prompt is sent to the model: Tavily web search results always,
- * plus a Firecrawl page scrape when the query is itself a URL.
+ * The "current developments" agent (agent-c) is not LLM-backed: its section
+ * is the raw Tavily web search results, plus a Firecrawl page scrape when
+ * the query is itself a URL, returned directly with no summarization.
  */
-async function buildAgentCPrompt(basePrompt: string, query: string): Promise<string> {
-  const context: string[] = [];
+async function buildSearchSection(query: string): Promise<string> {
+  const parts: string[] = [];
 
   const searchResults = await tavilySearch(query);
-  if (searchResults) context.push(`### Web search results (Tavily)\n${searchResults}`);
+  if (searchResults) parts.push(`### Web search results (Tavily)\n${searchResults}`);
 
   if (isUrl(query)) {
     const scraped = await firecrawlScrape(query.trim());
-    if (scraped) context.push(`### Scraped page content (Firecrawl)\n${scraped.slice(0, 8000)}`);
+    if (scraped) parts.push(`### Scraped page content (Firecrawl)\n${scraped.slice(0, 8000)}`);
   }
 
-  if (context.length === 0) return basePrompt;
-  return `${basePrompt}\n\nUse the following live context to inform your answer:\n\n${context.join("\n\n")}`;
+  if (parts.length === 0) return "No live search results were available for this query.";
+  return parts.join("\n\n");
 }
 
 /**
@@ -43,13 +43,29 @@ export async function runResearchPipeline(jobId: string, userId: string) {
 
   const results = await Promise.allSettled(
     agents.map(async (agent) => {
-      const provider = createProvider(agent.provider);
       const start = Date.now();
+
+      if (agent.provider === "search") {
+        try {
+          const text = await buildSearchSection(job.query);
+          await providerLogsRepository.log(jobId, "search", agent.id, true, Date.now() - start);
+          return { label: agent.label, text };
+        } catch (err) {
+          await providerLogsRepository.log(
+            jobId,
+            "search",
+            agent.id,
+            false,
+            Date.now() - start,
+            err instanceof Error ? err.message : "Unknown error",
+          );
+          throw err;
+        }
+      }
+
+      const provider = createProvider(agent.provider);
       try {
-        const prompt =
-          agent.id === "agent-c"
-            ? await buildAgentCPrompt(agent.buildPrompt(job.query), job.query)
-            : agent.buildPrompt(job.query);
+        const prompt = agent.buildPrompt!(job.query);
         const response = await provider.generate(prompt);
         await providerLogsRepository.log(
           jobId,

@@ -28,10 +28,10 @@ const AGENTS = [
   {
     id: "C",
     name: "Now",
-    model: "Llama 3.3",
-    route: "Groq",
+    model: "Tavily + Firecrawl",
+    route: "Direct",
     mandate:
-      "Answers 'what changed'. Recent developments, announcements, live discourse and the state of play as of today, not as of the last training cut - grounded with Tavily web search and, for URL queries, a Firecrawl page scrape.",
+      "Answers 'what changed'. Rather than asking a model to summarize, this section returns live Tavily web search results directly - and, for URL queries, a Firecrawl page scrape - unedited and unsummarized.",
     grounding: "Tavily + Firecrawl",
     section: "Current developments",
   },

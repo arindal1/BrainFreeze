@@ -3,8 +3,9 @@ export type AgentId = "agent-a" | "agent-b" | "agent-c";
 interface AgentDefinition {
   id: AgentId;
   label: string;
-  provider: "gemini" | "nemotron" | "groq";
-  buildPrompt: (topic: string) => string;
+  /** "search" agents are not LLM-backed - the orchestrator builds their section directly from Tavily/Firecrawl instead of calling buildPrompt. */
+  provider: "gemini" | "nemotron" | "search";
+  buildPrompt?: (topic: string) => string;
 }
 
 /**
@@ -47,12 +48,8 @@ export const agents: AgentDefinition[] = [
   {
     id: "agent-c",
     label: "Current Developments",
-    provider: "groq",
-    buildPrompt: (topic) =>
-      `You are a research assistant with access to real-time web search, producing a "current developments" section for a research document. ${SUBJECT_GUIDANCE}\n\n` +
-      `Cover: the latest news, releases, updates, or events; recent trends and trajectory; relevant market data, funding, pricing, or performance ` +
-      `figures if applicable; and public/community sentiment or expert opinion. Prioritize recency and clearly flag the approximate timeframe of any ` +
-      `information you cite. Format the response as markdown with clear "##" headings and bullet points where useful. Do not include a top-level title heading.\n\n` +
-      `Subject: ${topic}`,
+    // Not LLM-backed: the orchestrator returns Tavily search results (and a
+    // Firecrawl scrape for URL queries) for this section directly, unedited.
+    provider: "search",
   },
 ];
