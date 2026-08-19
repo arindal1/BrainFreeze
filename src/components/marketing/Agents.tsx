@@ -28,11 +28,11 @@ const AGENTS = [
   {
     id: "C",
     name: "Now",
-    model: "Grok",
-    route: "xAI",
+    model: "Llama 3.3",
+    route: "Groq",
     mandate:
-      "Answers 'what changed'. Recent developments, announcements, live discourse and the state of play as of today, not as of the last training cut.",
-    grounding: "Live search",
+      "Answers 'what changed'. Recent developments, announcements, live discourse and the state of play as of today, not as of the last training cut - grounded with Tavily web search and, for URL queries, a Firecrawl page scrape.",
+    grounding: "Tavily + Firecrawl",
     section: "Current developments",
   },
 ];

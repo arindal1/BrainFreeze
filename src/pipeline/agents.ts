@@ -3,7 +3,7 @@ export type AgentId = "agent-a" | "agent-b" | "agent-c";
 interface AgentDefinition {
   id: AgentId;
   label: string;
-  provider: "gemini" | "nemotron" | "grok";
+  provider: "gemini" | "nemotron" | "groq";
   buildPrompt: (topic: string) => string;
 }
 
@@ -47,7 +47,7 @@ export const agents: AgentDefinition[] = [
   {
     id: "agent-c",
     label: "Current Developments",
-    provider: "grok",
+    provider: "groq",
     buildPrompt: (topic) =>
       `You are a research assistant with access to real-time web search, producing a "current developments" section for a research document. ${SUBJECT_GUIDANCE}\n\n` +
       `Cover: the latest news, releases, updates, or events; recent trends and trajectory; relevant market data, funding, pricing, or performance ` +

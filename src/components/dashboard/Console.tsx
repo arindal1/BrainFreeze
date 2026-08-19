@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { randomSurpriseTopic } from "@/lib/surpriseTopics";
 
 const MAX = 500;
 
@@ -11,16 +12,16 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [lastSurprise, setLastSurprise] = useState<string | undefined>(undefined);
 
   const tooShort = query.trim().length < 2;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function dispatch(topic: string) {
     setError(null);
     setNotice(null);
     setLoading(true);
     try {
-      await onSubmit(query);
+      await onSubmit(topic);
       setNotice("Queued. Close the tab if you want - the run continues without you.");
       setQuery("");
     } catch (err) {
@@ -28,6 +29,17 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    await dispatch(query);
+  }
+
+  async function handleSurprise() {
+    const topic = randomSurpriseTopic(lastSurprise);
+    setLastSurprise(topic);
+    await dispatch(topic);
   }
 
   return (
@@ -55,6 +67,15 @@ export function Console({ onSubmit }: { onSubmit: (query: string) => Promise<unk
         />
         <Button type="submit" disabled={loading || tooShort} className="shrink-0">
           {loading ? "Queuing…" : "Dispatch"}
+        </Button>
+        <Button
+          type="button"
+          variant="line"
+          onClick={handleSurprise}
+          disabled={loading}
+          className="shrink-0"
+        >
+          Surprise me
         </Button>
       </div>
 

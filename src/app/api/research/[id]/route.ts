@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth/auth";
 import { jobsRepository, resultsRepository } from "@/repositories/researchRepository";
-import { researchService } from "@/services/researchService";
+import { researchService, NotFoundError, ConflictError } from "@/services/researchService";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -33,8 +33,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json().catch(() => null);
   if (body?.action === "cancel") {
-    const job = await researchService.cancel(id, session.user.id);
-    return NextResponse.json({ job });
+    try {
+      const job = await researchService.cancel(id, session.user.id);
+      return NextResponse.json({ job });
+    } catch (err) {
+      if (err instanceof NotFoundError) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      if (err instanceof ConflictError) return NextResponse.json({ error: err.message }, { status: 409 });
+      throw err;
+    }
   }
   return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
 }

@@ -3,6 +3,9 @@ import { normalizeQuery } from "@/lib/normalize";
 import { jobsRepository } from "@/repositories/researchRepository";
 import { enqueueResearchJob } from "@/workers/researchWorker";
 
+export class NotFoundError extends Error {}
+export class ConflictError extends Error {}
+
 export const researchService = {
   async submit(userId: string, rawQuery: string) {
     const normalized = normalizeQuery(rawQuery);
@@ -23,8 +26,8 @@ export const researchService = {
 
   async cancel(jobId: string, userId: string) {
     const job = await jobsRepository.findById(jobId);
-    if (!job || job.userId !== userId) throw new Error("Not found");
-    if (job.status === "COMPLETED") throw new Error("Already completed");
+    if (!job || job.userId !== userId) throw new NotFoundError("Not found");
+    if (job.status === "COMPLETED") throw new ConflictError("Already completed");
     return jobsRepository.updateStatus(jobId, "CANCELLED", { completedAt: new Date() });
   },
 

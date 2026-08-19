@@ -80,7 +80,13 @@ export class GeminiProvider implements LLMProvider {
           );
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-        return { provider: "gemini", model: "gemini-2.5-flash", text };
+        const usage = data?.usageMetadata
+          ? {
+              promptTokens: data.usageMetadata.promptTokenCount,
+              completionTokens: data.usageMetadata.candidatesTokenCount,
+            }
+          : undefined;
+        return { provider: "gemini", model: "gemini-2.5-flash", text, usage };
       },
       mockGenerate("gemini", prompt),
     );
@@ -126,43 +132,58 @@ export class NemotronProvider implements LLMProvider {
           );
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content ?? "";
-        return { provider: "nemotron", model: NEMOTRON_MODEL, text };
+        const usage = data?.usage
+          ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens }
+          : undefined;
+        return { provider: "nemotron", model: NEMOTRON_MODEL, text, usage };
       },
       mockGenerate("nemotron", prompt),
     );
   }
 }
 
-export class GrokProvider implements LLMProvider {
-  readonly name = "grok";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+/**
+ * Groq Cloud (OpenAI-compatible chat completions API). This is the "current
+ * developments" agent's base model; live grounding (Tavily web search,
+ * optional Firecrawl scrape) is layered on top of the prompt by the
+ * orchestrator before calling generate() - Groq's own built-in web search
+ * lives on its separate `groq/compound` agentic models, which we don't use
+ * here since grounding is already handled explicitly via Tavily/Firecrawl.
+ */
+export class GroqProvider implements LLMProvider {
+  readonly name = "groq";
 
   async generate(prompt: string): Promise<ProviderResponse> {
     return withKeyRotation(
-      "GROK",
+      "GROQ",
       async (key) => {
-        const res = await fetch("https://api.x.ai/v1/responses", {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
-            model: "grok-4.6",
-            input: [{ role: "user", content: prompt }],
-            tools: [{ type: "web_search" }],
+            model: GROQ_MODEL,
+            messages: [{ role: "user", content: prompt }],
           }),
         });
         if (!res.ok)
           throw new ProviderError(
-            `Grok HTTP ${res.status}`,
-            "grok",
+            `Groq HTTP ${res.status}`,
+            "groq",
             res.status === 429 || res.status >= 500,
           );
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content ?? "";
-        return { provider: "grok", model: "grok-4", text };
+        const usage = data?.usage
+          ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens }
+          : undefined;
+        return { provider: "groq", model: GROQ_MODEL, text, usage };
       },
-      mockGenerate("grok", prompt),
+      mockGenerate("groq", prompt),
     );
   }
 }

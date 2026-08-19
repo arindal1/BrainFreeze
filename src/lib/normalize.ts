@@ -11,3 +11,13 @@ export function normalizeQuery(raw: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/** True if the raw query is itself a well-formed http(s) URL. */
+export function isUrl(raw: string): boolean {
+  try {
+    const url = new URL(raw.trim());
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}

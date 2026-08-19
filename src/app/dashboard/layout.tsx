@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth/auth";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { ToastViewport } from "@/components/dashboard/ToastViewport";
 
 // Private, auth-gated area: keep it out of search results entirely.
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <main className="mx-auto w-full max-w-[90rem] flex-1 px-5 pt-36 pb-28 md:px-10 md:pt-32">
         {children}
       </main>
+      <ToastViewport />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { fireJobAlert } from "@/lib/jobAlerts";
 
 export type ResearchJob = {
   id: string;
@@ -14,20 +15,36 @@ export type ResearchJob = {
   completedAt: string | null;
 };
 
+const TERMINAL_STATUSES = new Set(["COMPLETED", "FAILED"]);
+
 export function useResearchJobs() {
   const [jobs, setJobs] = useState<ResearchJob[]>([]);
   const [loading, setLoading] = useState(true);
   const sourceRef = useRef<EventSource | null>(null);
+  // Tracks the last-seen status per job so we only notify on a transition into a
+  // terminal state (not on first load, when a job may already be COMPLETED).
+  const statusRef = useRef<Map<string, ResearchJob["status"]>>(new Map());
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/research");
     if (!res.ok) return;
     const data = await res.json();
-    setJobs(data.jobs);
+    const nextJobs = data.jobs as ResearchJob[];
+
+    for (const job of nextJobs) {
+      const prevStatus = statusRef.current.get(job.id);
+      if (prevStatus && prevStatus !== job.status && TERMINAL_STATUSES.has(job.status)) {
+        fireJobAlert(job);
+      }
+      statusRef.current.set(job.id, job.status);
+    }
+
+    setJobs(nextJobs);
     setLoading(false);
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount, not a synchronous derived-state update
     refresh();
 
     const source = new EventSource("/api/events");

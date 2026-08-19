@@ -48,7 +48,7 @@ sequenceDiagram
 - **`src/aggregator`** - Merges per-agent sections into one structured markdown document with references footer.
 - **`src/queue`** - In-process FIFO queue with configurable concurrency (`WORKER_CONCURRENCY` env var). Designed to be swapped for Redis/BullMQ/SQS without changing calling code.
 - **`src/workers`** - Wraps the orchestrator call with queue-level error handling.
-- **`src/repositories`** - Isolates all Drizzle queries (jobs, results, provider logs).
+- **`src/repositories`** - Isolates all Drizzle queries (jobs, results, provider logs, push subscriptions, usage aggregates).
 - **`src/services`** - Business logic: submit (dedup + create + enqueue), list, cancel, remove.
 - **`src/auth`** - NextAuth v5 (beta): Credentials (bcrypt) + Google OAuth, JWT sessions, `session.user.id` augmentation.
 - **`src/components`** - `marketing/` (landing page + WebGL/GSAP), `auth/` (login/register forms), `dashboard/` (job cards, SSE hook, submit form), `ui/` (shared Button/Input/StatusPill), `three/` (shader background), `providers/` (NextAuth session provider wrapper).
@@ -63,6 +63,25 @@ sequenceDiagram
 ## Real-time updates
 
 No WebSocket server: the dashboard opens a native `EventSource` against `/api/events` (a `ReadableStream`-based SSE route with 25s keepalive). Any pipeline stage change publishes to `JobEventBus`, which fans out to all SSE connections for that user; the client triggers a lightweight data refresh on any message rather than trying to reconcile partial state client-side.
+
+## Browser notifications
+
+Three complementary alert channels fire when a job transitions to `COMPLETED`/`FAILED`, funneled through a single `fireJobAlert()` (`src/lib/jobAlerts.ts`) so they never duplicate each other:
+
+1. **In-app toast + sound** - the lightest-weight path, always available. `useResearchJobs` (`src/components/dashboard/useResearchJobs.ts`) keeps a per-job status map and calls `fireJobAlert` on transition into a terminal state (never for jobs already terminal on first load). `fireJobAlert` pushes a dismissible toast (`src/lib/toastBus.ts` pub/sub, rendered by `ToastViewport.tsx` in the dashboard layout) with a link to the finished document, and plays a short synthesized WebAudio chime (`src/lib/soundAlert.ts`) unless the user muted it (`SoundToggle.tsx`, `src/lib/soundPreference.ts`).
+2. **Native OS notification (tab open)** - if the user granted `Notification` permission (`src/lib/notifications.ts`, `NotificationToggle.tsx`), the browser's own notification centre also shows the alert.
+3. **Web Push (tab closed)** - if the user granted permission *and* VAPID keys are configured, `NotificationToggle` registers a `PushSubscription` (`src/lib/pushClient.ts`) via a service worker (`public/sw.js`) and stores it server-side (`push_subscriptions` table, `pushSubscriptionsRepository`, `POST/DELETE /api/push/subscribe`). `orchestrator.ts` calls `sendPushToUser` (`src/lib/push.ts`, using the `web-push` package) on job completion/failure, which delivers a push even with no dashboard tab open - the browser wakes the service worker, which shows an OS notification directly if no tab is visible, or hands the update to a visible tab via `postMessage` so it renders as an in-app toast instead of also popping an OS notification.
+
+Cross-tab dedupe (`src/lib/notifyDedupe.ts`, a short-TTL `localStorage` claim) ensures a job finishing only ever triggers one alert, even with multiple dashboard tabs open or both the SSE and push paths reporting the same completion.
+
+## Usage dashboard
+
+`/dashboard/usage` (`src/app/dashboard/usage/page.tsx`) surfaces jobs-this-month/all-time, total provider calls, and a per-provider breakdown of calls/failures/token counts/estimated cost, backed by `usageRepository.summaryForUser` (`src/repositories/researchRepository.ts`). `providerLogs` records `promptTokens`/`completionTokens` when a provider's API reports usage (Gemini `usageMetadata`, Groq/Nemotron OpenAI-compatible `usage`); `src/lib/pricing.ts` converts those into a rough cost estimate against public list pricing per provider (Nemotron is currently $0 - OpenRouter free-tier model). This is an estimate for visibility, not exact billing data.
+
+## Engagement features
+
+- **Research streaks**: `src/lib/streak.ts`'s `computeStreak()` derives the count of consecutive calendar days (local time) with at least one submitted job from the job list the dashboard already has loaded - no dedicated query. The dispatch console (`src/app/dashboard/page.tsx`) only renders the "N days running" label once the streak reaches 2, so a broken or non-existent streak is simply invisible rather than a discouraging "0 days" message.
+- **"Surprise me"**: `Console.tsx` has a secondary button that picks a random entry from a curated, cross-domain topic list (`src/lib/surpriseTopics.ts`) and submits it through the same `onSubmit` path as a typed query - same dedup/queueing/SSE behavior, just a randomized starting point for idle exploration.
 
 ## Duplicate detection
 

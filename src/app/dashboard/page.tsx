@@ -1,15 +1,19 @@
 "use client";
 
+import { useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useResearchJobs } from "@/components/dashboard/useResearchJobs";
 import { Console } from "@/components/dashboard/Console";
 import { JobRow } from "@/components/dashboard/JobRow";
+import { computeStreak } from "@/lib/streak";
 
 const ACTIVE = new Set(["PENDING", "QUEUED", "PROCESSING"]);
+const MIN_VISIBLE_STREAK = 2;
 
 export default function ActivePage() {
   const { jobs, loading, submit, cancel, remove } = useResearchJobs();
   const active = jobs.filter((j) => ACTIVE.has(j.status));
+  const streak = useMemo(() => computeStreak(jobs), [jobs]);
 
   return (
     <div className="flex flex-col gap-14">
@@ -21,9 +25,14 @@ export default function ActivePage() {
           </p>
           <h1 className="display text-[length:var(--step-4)]">Dispatch</h1>
         </div>
-        <p className="label text-frost-dim">
-          {active.length} run{active.length === 1 ? "" : "s"} in flight
-        </p>
+        <div className="flex flex-col items-end gap-1">
+          {streak >= MIN_VISIBLE_STREAK && (
+            <p className="label text-flare">{streak} days running</p>
+          )}
+          <p className="label text-frost-dim">
+            {active.length} run{active.length === 1 ? "" : "s"} in flight
+          </p>
+        </div>
       </header>
 
       <Console onSubmit={submit} />

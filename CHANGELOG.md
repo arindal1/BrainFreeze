@@ -2,6 +2,57 @@
 
 All notable changes to Brain Freeze are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
+## [0.7.1] - 2026-08-19
+
+### Added
+
+- **Research streaks**: the dispatch console shows "N days running" once the streak reaches 2+ consecutive days with at least one submitted job (no counter, no reset messaging, at 0-1 days - not a guilt trip). Computed client-side (`src/lib/streak.ts`) from jobs already loaded by the dashboard, no new query.
+- **"Surprise me" button**: a secondary action next to Dispatch in `Console.tsx` that submits a random topic from a curated list (`src/lib/surpriseTopics.ts`, 20 broad, cross-domain prompts) through the same submit path as a typed query, avoiding immediate repeats.
+
+## [0.7.0] - 2026-08-19
+
+### Added
+
+- **Web Push notifications (VAPID)**: research alerts now fire even with no dashboard tab open. `public/sw.js` is a new service worker that receives push events, shows an OS notification when no tab is visible, or hands the update to any visible tab via `postMessage` instead (avoiding a double-alert). `src/lib/push.ts` (server) sends pushes through the `web-push` package to every subscription a user has registered; `src/lib/pushClient.ts` (browser) registers the service worker and subscribes via `PushManager`. New `push_subscriptions` table (already scaffolded in `schema.ts`) is now backed by `pushSubscriptionsRepository` (`src/repositories/researchRepository.ts`) and a `POST`/`DELETE /api/push/subscribe` route. `NotificationToggle` now also registers a push subscription the moment permission is granted (and re-registers on revisit if the subscription was dropped). Requires `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` env vars (see `.env.example`); push is skipped entirely if unset. `orchestrator.ts` calls `sendPushToUser` on both job completion and job failure.
+- **In-app toast + sound alerts**: a lighter-weight companion to OS notifications. New `src/lib/toastBus.ts` (module-level pub/sub) + `ToastViewport.tsx` (mounted in the dashboard layout) render dismissible toasts with a link to the finished document. `src/lib/soundAlert.ts` plays a short synthesized two-tone chime (WebAudio, no audio asset) on every alert; `SoundToggle.tsx` in `DashboardNav` lets the user mute it (`src/lib/soundPreference.ts`, `localStorage`-backed). Both the SSE-driven job-status transition detector and the service-worker push bridge now funnel through a single `fireJobAlert()` (`src/lib/jobAlerts.ts`) that fires the toast, the sound, and (if permission was granted) the OS notification.
+- **Cross-tab/service-worker dedupe**: `src/lib/notifyDedupe.ts` uses a short-TTL `localStorage` claim (`claimAlert`) so a job finishing only ever triggers one alert - not one per open dashboard tab, and not twice when both the SSE path and a push message report the same completion.
+- **Usage dashboard**: new `/dashboard/usage` page (`src/app/dashboard/usage/page.tsx`) shows jobs this month, jobs all-time, total provider calls, and an estimated cost, plus a per-provider breakdown (calls, failures, prompt/completion tokens, estimated cost). Backed by `usageRepository.summaryForUser` (`src/repositories/researchRepository.ts`) and `estimateCostUsd` (`src/lib/pricing.ts`, rough public list pricing - not exact billing). `providerLogs` gained `promptTokens`/`completionTokens` columns, populated from each provider's own usage reporting (Gemini `usageMetadata`, Groq/Nemotron OpenAI-compatible `usage`) via a new optional `usage` field on `ProviderResponse`.
+- **Mobile dashboard pass**: `DashboardNav`'s mobile tab rail now scrolls horizontally (`overflow-x-auto`, `min-w-[5.5rem]` per tab) to fit the new "Usage" tab without crowding; the "Enable alerts" control shows a shorter "Alerts" label below the `sm` breakpoint instead of being clipped, and `SoundToggle` is visible (not hidden) on mobile so muting the chime doesn't require a wider viewport.
+
+### Changed
+
+- `next.config.ts` CSP gained `worker-src 'self'` so the service worker is allowed to register under the existing Content-Security-Policy.
+- `src/lib/notifications.ts` no longer exports `notifyJobFinished` (superseded by `fireJobAlert`, which layers push + toast + sound + dedupe on top of the same permission check).
+
+## [0.6.0] - 2026-08-19
+
+### Added
+
+- **Browser notifications for finished research runs**: new `src/lib/notifications.ts` wraps the `Notification` API (permission is never requested automatically). A new "Enable alerts" control (`src/components/dashboard/NotificationToggle.tsx`) in `DashboardNav` lets the user opt in and shows the current state (`Enable alerts` / `Alerts on` / `Alerts blocked`, hidden entirely if the browser doesn't support notifications). `useResearchJobs` now tracks each job's last-seen status and fires a native "Research ready" / "Research failed" notification the moment a job transitions into `COMPLETED`/`FAILED` over the existing SSE-driven refresh - never for jobs that were already finished on page load. Notifications are tagged per job so re-renders replace rather than stack, and clicking one focuses the tab.
+
+## [0.5.4] - 2026-08-19
+
+### Security
+
+- **Removed a hardcoded live Neon Postgres connection string** (including plaintext password) that had been committed as the fallback default for `DATABASE_URL` in `src/db/index.ts`. It now falls back to an inert `localhost` placeholder (matching `.env.example`) so builds without a configured DB still don't crash, but no real credential can leak from source. **This credential is present in prior git history — rotate the Neon database password immediately regardless of this fix**, since removing it from the working tree does not remove it from history.
+- Removed `freeze_codebase_dump.txt`, a stray full-repo text dump that had been committed to the repository; added `*codebase_dump*.txt` to `.gitignore` to prevent recurrence.
+
+### Fixed
+
+- **`PATCH /api/research/[id]` (cancel action) returned an unhandled 500** instead of a proper status code when the job didn't exist/wasn't owned by the caller, or was already completed. `researchService.cancel` now throws typed `NotFoundError`/`ConflictError`, and the route maps them to `404`/`409` respectively.
+
+## [0.5.3]
+
+### Changed
+
+- **agent-c provider swapped Grok → Groq Cloud**: `src/providers/implementations.ts` replaces `GrokProvider` with `GroqProvider` (model `llama-3.3-70b-versatile`, `POST api.groq.com/openai/v1/chat/completions`, key pool `GROQ_KEY_N`). Briefly used Cerebras (`gemma-4-31b`) as an intermediate step but swapped to Groq since the Cerebras account had no billing configured (`402 Payment Required`). `providerFactory.ts`, `pipeline/agents.ts`, and the marketing `Agents.tsx` card (model/route/mandate copy) updated to match.
+
+### Added
+
+- **Tavily web search grounding**: new `src/providers/tavily.ts` (`tavilySearch`, key pool `TAVILY_KEY_N`) queries `api.tavily.com/search` and is always appended as context to agent-c's prompt in `src/pipeline/orchestrator.ts`.
+- **Firecrawl URL scrape grounding**: new `src/providers/firecrawl.ts` (`firecrawlScrape`, optional `FIRECRAWL_KEY` for higher rate limits) calls `api.firecrawl.dev/v2/scrape` and is appended to agent-c's context when the submitted query is itself a URL. New `isUrl()` helper added to `src/lib/normalize.ts` to detect this.
+- `.env.example` updated with `GROQ_KEY_1/2`, `TAVILY_KEY_1/2`, `FIRECRAWL_KEY`; `GROK_KEY_1/2` removed.
+
 ## [0.5.2]
 
 ### Changed

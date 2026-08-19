@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { NotificationToggle } from "@/components/dashboard/NotificationToggle";
+import { SoundToggle } from "@/components/dashboard/SoundToggle";
 
 const links = [
   { href: "/dashboard", label: "Active" },
   { href: "/dashboard/completed", label: "Ready" },
   { href: "/dashboard/history", label: "Archive" },
+  { href: "/dashboard/usage", label: "Usage" },
 ];
 
 export function DashboardNav({ userName }: { userName: string }) {
@@ -41,7 +44,9 @@ export function DashboardNav({ userName }: { userName: string }) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <SoundToggle />
+          <NotificationToggle />
           <span className="label hidden max-w-[16ch] truncate text-frost-dim sm:inline">
             {userName}
           </span>
@@ -55,7 +60,7 @@ export function DashboardNav({ userName }: { userName: string }) {
       </div>
 
       {/* Mobile tab rail */}
-      <nav className="flex border-t border-[color:var(--line)] md:hidden" aria-label="Dashboard">
+      <nav className="flex overflow-x-auto border-t border-[color:var(--line)] md:hidden" aria-label="Dashboard">
         {links.map((link) => {
           const active = pathname === link.href;
           return (
@@ -63,7 +68,7 @@ export function DashboardNav({ userName }: { userName: string }) {
               key={link.href}
               href={link.href}
               aria-current={active ? "page" : undefined}
-              className={`label flex-1 border-r border-[color:var(--line)] py-3 text-center last:border-r-0 ${
+              className={`label min-w-[5.5rem] flex-1 border-r border-[color:var(--line)] py-3 text-center last:border-r-0 ${
                 active ? "bg-[color:var(--flare-soft)] text-flare" : "text-frost-muted"
               }`}
             >

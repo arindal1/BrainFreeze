@@ -27,6 +27,7 @@ export const researchJobs = pgTable("research_jobs", {
   progress: integer("progress").notNull().default(0),
   statusMessage: text("status_message"),
   error: text("error"),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   startedAt: timestamp("started_at"),
   completedAt: timestamp("completed_at"),
@@ -38,6 +39,7 @@ export const researchResults = pgTable("research_results", {
   title: text("title").notNull(),
   markdown: text("markdown").notNull(),
   durationMs: integer("duration_ms"),
+  shareToken: text("share_token").unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -49,6 +51,13 @@ export const providerLogs = pgTable("provider_logs", {
   success: boolean("success").notNull(),
   durationMs: integer("duration_ms"),
   errorMessage: text("error_message"),
+  // Best-effort token counts from providers that report `usage` in their API
+  // response (OpenAI-compatible `usage.prompt_tokens`/`completion_tokens` for
+  // Nemotron/Groq, `usageMetadata` for Gemini). Null when a provider doesn't
+  // report usage (e.g. the mock fallback) - used for the usage dashboard's
+  // cost estimate, which is therefore an estimate, not exact billing data.
+  promptTokens: integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -66,5 +75,14 @@ export const jobEvents = pgTable("job_events", {
   jobId: uuid("job_id").notNull().references(() => researchJobs.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   payload: jsonb("payload"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

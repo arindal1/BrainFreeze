@@ -1,6 +1,6 @@
 import "server-only";
 import { db, schema } from "@/db";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray } from "drizzle-orm";
 
 const ACTIVE_STATUSES = ["PENDING", "QUEUED", "PROCESSING"] as const;
 
@@ -89,7 +89,74 @@ export const providerLogsRepository = {
     success: boolean,
     durationMs: number,
     errorMessage?: string,
+    usage?: { promptTokens?: number; completionTokens?: number },
   ) {
-    await db.insert(schema.providerLogs).values({ jobId, provider, agent, success, durationMs, errorMessage });
+    await db.insert(schema.providerLogs).values({
+      jobId,
+      provider,
+      agent,
+      success,
+      durationMs,
+      errorMessage,
+      promptTokens: usage?.promptTokens,
+      completionTokens: usage?.completionTokens,
+    });
+  },
+};
+
+export const pushSubscriptionsRepository = {
+  async upsert(userId: string, endpoint: string, p256dh: string, auth: string) {
+    const [sub] = await db
+      .insert(schema.pushSubscriptions)
+      .values({ userId, endpoint, p256dh, auth })
+      .onConflictDoUpdate({
+        target: schema.pushSubscriptions.endpoint,
+        set: { userId, p256dh, auth },
+      })
+      .returning();
+    return sub;
+  },
+
+  async listForUser(userId: string) {
+    return db.select().from(schema.pushSubscriptions).where(eq(schema.pushSubscriptions.userId, userId));
+  },
+
+  async removeByEndpoint(endpoint: string, userId?: string) {
+    await db
+      .delete(schema.pushSubscriptions)
+      .where(
+        userId
+          ? and(eq(schema.pushSubscriptions.endpoint, endpoint), eq(schema.pushSubscriptions.userId, userId))
+          : eq(schema.pushSubscriptions.endpoint, endpoint),
+      );
+  },
+};
+
+export const usageRepository = {
+  /** Jobs created this calendar month plus per-provider call/token aggregates, for the usage dashboard. */
+  async summaryForUser(userId: string) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [jobsThisMonth, totalJobs, logs] = await Promise.all([
+      db
+        .select()
+        .from(schema.researchJobs)
+        .where(and(eq(schema.researchJobs.userId, userId), gte(schema.researchJobs.createdAt, monthStart))),
+      db.select().from(schema.researchJobs).where(eq(schema.researchJobs.userId, userId)),
+      db
+        .select({
+          provider: schema.providerLogs.provider,
+          success: schema.providerLogs.success,
+          durationMs: schema.providerLogs.durationMs,
+          promptTokens: schema.providerLogs.promptTokens,
+          completionTokens: schema.providerLogs.completionTokens,
+        })
+        .from(schema.providerLogs)
+        .innerJoin(schema.researchJobs, eq(schema.providerLogs.jobId, schema.researchJobs.id))
+        .where(eq(schema.researchJobs.userId, userId)),
+    ]);
+
+    return { jobsThisMonthCount: jobsThisMonth.length, totalJobsCount: totalJobs.length, logs };
   },
 };
